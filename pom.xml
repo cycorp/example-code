@@ -1,0 +1,146 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <artifactId>cyc-api-use-cases</artifactId>
+  <groupId>com.cyc</groupId>
+  <version>1.0.0-rc1</version>
+  <packaging>jar</packaging>
+
+  <name>Cyc API Use Cases</name>
+  <description>Examples of common CycCoreAPI usage.</description>
+  <url>http://dev.cyc.com/cyc-api/</url>
+  
+  <scm>
+    <connection>scm:git:git@github.com:cycorp/CoreAPIUseCases.git</connection>
+    <developerConnection>scm:git:git@github.com:cycorp/CoreAPIUseCases.git</developerConnection>
+    <url>https://github.com/cycorp/CoreAPIUseCases</url>
+  </scm>
+  
+  <issueManagement>
+    <url>https://github.com/cycorp/CoreAPIUseCases/issues</url>
+    <system>GitHub Issues</system>
+  </issueManagement>
+  
+  <inceptionYear>2013</inceptionYear>
+  
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  
+  <organization>
+    <name>Cycorp, Inc.</name>
+    <url>http://www.cyc.com</url>
+  </organization>
+  
+  <developers>
+    <developer>
+      <name>Cycorp API Team</name>
+      <email>api-devs@cyc.com</email>
+      <organization>Cycorp, Inc.</organization>
+      <organizationUrl>http://www.cyc.com</organizationUrl>
+    </developer>
+  </developers>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+  </properties>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.7</version>
+        <configuration>
+          <verbose>false</verbose>
+          <addSvnKeyWords>false</addSvnKeyWords>
+          <canUpdateDescription>true</canUpdateDescription>
+          <descriptionTemplate>${basedir}/src/main/resources/headerTemplate.ftl</descriptionTemplate>
+        </configuration>
+        <executions>
+          <execution>
+            <id>first</id>
+            <goals>
+              <goal>update-file-header</goal>
+            </goals>
+            <phase>process-sources</phase>
+            <configuration>
+              <licenseName>apache_v2</licenseName>
+              <roots>
+                <root>src/main/java</root>
+                <root>src/test</root>
+              </roots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.3</version>
+          <executions>
+            <execution>
+              <id>bundle-sources</id>
+              <phase>package</phase>
+              <goals>
+                <!-- produce source artifact for main project sources -->
+                <goal>jar-no-fork</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.cyc</groupId>
+      <artifactId>cyc-session</artifactId>
+      <version>1.0.0-rc1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.cyc</groupId>
+      <artifactId>cyc-kb</artifactId>
+      <version>1.0.0-rc1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.cyc</groupId>
+      <artifactId>cyc-query</artifactId>
+      <version>1.0.0-rc1</version>
+    </dependency>
+    
+    <!--
+    Used in QueryAnswerJustifying to render justification HTML as text.
+    -->
+    <dependency>
+      <groupId>net.htmlparser.jericho</groupId>
+      <artifactId>jericho-html</artifactId>
+      <version>3.3</version>
+    </dependency>
+    
+    <!-- 
+         Enables logging of Cyc APIs. Cyc APIs use SLF4J, which must be bound
+         to a logging framework at deployment time; here we use Log4j. 
+         
+         See:
+         * http://www.slf4j.org/manual.html
+         * src/main/resources/log4j.properties
+    -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.7</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+  </dependencies>
+</project>

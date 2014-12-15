@@ -48,6 +48,12 @@ that you wanted to run the `CoreAPIUsage` class against a Cyc server at
 If you wish to modify the logging level of the Cyc APIs, you can change the 
 settings in `src/main/resources/log4j.properties`.
 
+Knowledge Editing and Ontology Development
+------------------------------------------
+
+A Cyc application is only as good as the knowledge in Cyc's KB. Read up on 
+[ontology development](http://dev.cyc.com/ontology-development/).
+
 Further Documentation
 ---------------------
 

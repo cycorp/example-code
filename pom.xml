@@ -6,9 +6,9 @@
   <groupId>com.cyc</groupId>
   <version>1.0.0-rc2-SNAPSHOT</version>
   <packaging>jar</packaging>
-
-  <name>Cyc API Use Cases</name>
-  <description>Examples of common CycCoreAPI usage.</description>
+  
+  <name>Cyc Core API Use Cases</name>
+  <description>Examples of common usage of the Cyc Core API Suite.</description>
   <url>http://dev.cyc.com/cyc-api/</url>
   
   <scm>
@@ -39,7 +39,7 @@
   <developers>
     <developer>
       <name>Cycorp API Team</name>
-      <email>api-devs@cyc.com</email>
+      <email>dev-team@cyc.com</email>
       <organization>Cycorp, Inc.</organization>
       <organizationUrl>http://www.cyc.com</organizationUrl>
     </developer>

@@ -50,14 +50,9 @@ import com.cyc.query.Query;
 import com.cyc.query.exception.QueryConstructionException;
 import com.cyc.session.CycSessionManager;
 import com.cyc.session.SessionApiException;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * CoreAPIUsage is designed to illustrate the exemplary idioms for

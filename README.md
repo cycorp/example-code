@@ -29,7 +29,7 @@ Core API libraries for you.
 
 If you are using the latest version of the Use Cases from the 
 [git repository](https://github.com/cycorp/CoreAPIUseCases), then you will need to manually build
-and install the latest *-SNAPSHOT version of the [Core APIs](https://github.com/cycorp/CycCoreAPI)
+and install the latest \*-SNAPSHOT version of the [Core APIs](https://github.com/cycorp/CycCoreAPI)
 from source.
 
 ### Cyc Server

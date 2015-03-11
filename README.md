@@ -34,10 +34,10 @@ from source.
 
 ### Cyc Server
 
-These examples are intended to run against **ResearchCyc 4.0q** or higher.
+These examples are intended to be run against **ResearchCyc 4.0q** or higher.
 
 All of the code demonstrated here is compatible with **EnterpriseCyc 1.7-preview** or higher, but 
-note that, by design, EnterpriseCyc does not contain the necessary _KB content_ to run these 
+note that, by design, EnterpriseCyc does not contain the _KB content_ necessary to run these 
 specific examples.
 
 The Core API Suite and these examples are _not_ presently compatible with any current release of 

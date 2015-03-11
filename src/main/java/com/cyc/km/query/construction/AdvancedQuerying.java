@@ -60,7 +60,7 @@ public class AdvancedQuerying {
       demonstrateTermSubstitution();
     } catch (Exception ex) {
       System.out.println("Problem building or running demo query.");
-      ex.printStackTrace();
+      ex.printStackTrace(System.err);
       System.exit(1);
     } finally {
       System.out.println("... " + exampleName + " concluded.");

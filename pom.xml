@@ -101,17 +101,7 @@
   <dependencies>
     <dependency>
       <groupId>com.cyc</groupId>
-      <artifactId>cyc-session</artifactId>
-      <version>1.0.0-rc2-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.cyc</groupId>
-      <artifactId>cyc-kb</artifactId>
-      <version>1.0.0-rc2-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.cyc</groupId>
-      <artifactId>cyc-query</artifactId>
+      <artifactId>cyc-core-suite</artifactId>
       <version>1.0.0-rc2-SNAPSHOT</version>
     </dependency>
     

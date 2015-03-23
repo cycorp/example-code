@@ -3,7 +3,7 @@ package com.cyc.km.query.construction;
 /*
  * #%L
  * File: ConstructingQueries.java
- * Project: Cyc API Use Cases
+ * Project: Cyc Core API Use Cases
  * %%
  * Copyright (C) 1995 - 2014 Cycorp, Inc
  * %%

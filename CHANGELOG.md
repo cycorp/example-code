@@ -3,8 +3,8 @@ Cyc API Use Cases CHANGELOG
 
 For more information, visit the [Cyc Developer Center](http://dev.cyc.com/).
 
-1.0.0-rc2
----------
+1.0.0-rc2 - 2015-04-07
+----------------------
 Examples updated to work against 
 [Cyc Core API Suite 1.0.0-rc2](https://github.com/cycorp/CycCoreAPI/releases/tag/v1.0.0-rc2) and a 
 [suitable version of EnterpriseCyc or ResearchCyc](https://github.com/cycorp/CoreAPIUseCases/blob/v1.0.0-rc2/README.md#requirements).

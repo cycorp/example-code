@@ -34,16 +34,20 @@ from source.
 
 ### Cyc Server
 
-These examples are intended to be run against **ResearchCyc 4.0q** or higher.
+All of these examples can be run against **ResearchCyc 4.0q** or higher.
 
 All of the code demonstrated here is compatible with **EnterpriseCyc 1.7-preview** or higher, but 
 note that, by design, EnterpriseCyc does not contain the _KB content_ necessary to run these 
 specific examples.
 
-The Core API Suite and these examples are _not_ presently compatible with any current release of 
-**OpenCyc.**
+The Core APIs are compatible with **OpenCyc 5.0-preview** of higher, although OpenCyc does not have
+support for advanced features such as QuerySearch or ProofViewJustification. Classes and methods 
+which are not supported by OpenCyc will reflect this in their javadoc description and in their 
+signature by declaring that they throw a `com.cyc.session.exception.OpenCycUnsupportedServerException`.
+All of the example code in `com.cyc.core.examples.basics` demonstrates OpenCyc-supported 
+functionality.
 
-For inquiries about obtaining a suitable version of Research Cyc or Enterprise Cyc, please visit the
+For inquiries about obtaining a suitable version of Cyc, please visit the
 [Cyc Dev Center download page](http://dev.cyc.com/cyc-api/download.html).
 
 

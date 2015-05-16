@@ -89,61 +89,13 @@ public class CoreAPIUsage {
     
   public static void main(String[] args) {
     final String exampleName = CoreAPIUsage.class.getSimpleName();
-
     try {
       System.out.println("Running " +  exampleName + "...");
-      System.out.println("Setting up Cyc... ");
+      CoreAPIUsage usage = new CoreAPIUsage();
       
-      /* 
-      There is no need to specify a Cyc server. When one is required, the
-      CycSessionManager will check the System properties to determine how to
-      get access to Cyc. By default, in a graphical environment, it will fall 
-      back on interactively prompting the user for connection information.
-      */
-      CycSession session = CycSessionManager.getCurrentSession();
-      System.out.println("Acquired a cyc server... " + session.getServerInfo().getCycServer());
+      // Here's where the example begins...
+      usage.runExample();
       
-      /* Initialize the default assertion and query contexts to UniversalVocabularyMt and InferencePSC resp. */
-      KBAPIConfiguration.setDefaultContext(new KBAPIDefaultContext(Constants.uvMt(), Constants.inferencePSCMt()));
-      
-      // setTranscriptOperations will Transcript the Cyc operations issued by the API
-      // These operations can be saved into a ASCII text file and reloaded on a clean image to recreate 
-      // a given state of the KB with such operations.
-      KBAPIConfiguration.setShouldTranscriptOperations(true);
-      
-      // This will set "TheUser" as the current Cyclist.
-      // Setting the cyclist is required for Bookkeeping information to be added for
-      // assertions and constants.
-      CycSessionManager.getCurrentSession().getOptions().setCyclistName("TheUser");
-      
-      initializeStatics();
-      CoreAPIUsage obj = new CoreAPIUsage();
-      obj.setupJackNicholson();
-      obj.setupMarvinGardens();
-
-      /* FOR FUTURE RELEASE (WITH NL API)
-       Yet another method to retrieve things from the KB is by using their natural
-       language representations
-       NLFormat nlf = NLFormat.getInstance();
-       List<Object> jacks = (List<Object>) nlf.parseObjects("Jack Nicholson");
-       boolean foundJackNicholsonByNLString = false;
-       for(Object NLJack : jacks) {
-       if(Nicholson.equalsSemantically(NLJack)) 
-       foundJackNicholsonByNLString = true;
-       }
-       assert (foundJackNicholsonByNLString) : "Could not retrieve Jack Nicholson by natural language parsing"; 
-       */
-
-      /* Now let's query the KB to make sure we we able to make the above 
-       assertions correctly. To that end, let's try to retrieve all movies in which 
-       Jack Nicholson has acted and which have a restricted rating and make sure 
-       that TheKingOfMarvinGardens-TheMovie appears in the results. */
-      obj.runQueryAndTestAnswers(obj.createQueryViaKBSentence());
-
-      /* The second method for creating a new query has a simpler form */
-      obj.runQueryAndTestAnswers(obj.createQueryViaString());
-      /* Execute the method illustrating Cyc Core API usage through a movie theme */
-
     } catch (CycConnectionException cce) {
       cce.printStackTrace(System.err);
       System.exit(1);
@@ -163,6 +115,71 @@ public class CoreAPIUsage {
       System.out.println("... " +  exampleName + " concluded.");
       System.exit(0);
     }
+  }
+  
+  private void runExample() throws CreateException, KBTypeException, DeleteException, SessionApiException, KBApiException, QueryConstructionException, CycConnectionException {
+    
+    /* Connect to a Cyc server and set a few basic options. */
+    setUpCyc();
+    CoreAPIUsage.initializeStatics();
+    
+    setupJackNicholson();
+    
+    setupMarvinGardens();
+
+    /* FOR FUTURE RELEASE (WITH NL API)
+     Yet another method to retrieve things from the KB is by using their natural
+     language representations
+     NLFormat nlf = NLFormat.getInstance();
+     List<Object> jacks = (List<Object>) nlf.parseObjects("Jack Nicholson");
+     boolean foundJackNicholsonByNLString = false;
+     for(Object NLJack : jacks) {
+     if(Nicholson.equalsSemantically(NLJack)) 
+     foundJackNicholsonByNLString = true;
+     }
+     assert (foundJackNicholsonByNLString) : "Could not retrieve Jack Nicholson by natural language parsing"; 
+     */
+
+    /* Now let's query the KB to make sure we we able to make the above 
+     assertions correctly. To that end, let's try to retrieve all movies in which 
+     Jack Nicholson has acted and which have a restricted rating and make sure 
+     that TheKingOfMarvinGardens-TheMovie appears in the results. */
+    runQueryAndTestAnswers(createQueryViaKBSentence());
+
+    /* The second method for creating a new query has a simpler form */
+    runQueryAndTestAnswers(createQueryViaString());
+    /* Execute the method illustrating Cyc Core API usage through a movie theme */
+  }
+  
+  /**
+   * Connect to a Cyc server and set a few basic options.
+   * 
+   * @throws SessionApiException 
+   */
+  private void setUpCyc() throws SessionApiException {
+    System.out.println("Setting up Cyc... ");
+
+    /* 
+    There is no need to specify a Cyc server. When one is required, the
+    CycSessionManager will check the System properties to determine how to
+    get access to Cyc. By default, in a graphical environment, it will fall 
+    back on interactively prompting the user for connection information.
+    */
+    CycSession session = CycSessionManager.getCurrentSession();
+    System.out.println("Acquired a cyc server... " + session.getServerInfo().getCycServer());
+
+    /* Initialize the default assertion and query contexts to UniversalVocabularyMt and InferencePSC resp. */
+    KBAPIConfiguration.setDefaultContext(new KBAPIDefaultContext(Constants.uvMt(), Constants.inferencePSCMt()));
+
+    // setTranscriptOperations will Transcript the Cyc operations issued by the API
+    // These operations can be saved into a ASCII text file and reloaded on a clean image to recreate 
+    // a given state of the KB with such operations.
+    KBAPIConfiguration.setShouldTranscriptOperations(true);
+
+    // This will set "TheUser" as the current Cyclist.
+    // Setting the cyclist is required for Bookkeeping information to be added for
+    // assertions and constants.
+    CycSessionManager.getCurrentSession().getOptions().setCyclistName("TheUser");
   }
 
   private static void initializeStatics() throws CreateException, KBTypeException, DeleteException {
@@ -216,6 +233,13 @@ public class CoreAPIUsage {
     movieAdvisoryRating = BinaryPredicateImpl.get("movieAdvisoryRating");
   }
 
+  /**
+   * We need a handle to the representation of the actor Jack Nicholson in the KB. We are not sure 
+   * if this term exists in the KB.
+   * 
+   * @throws CreateException
+   * @throws KBTypeException 
+   */
   public void setupJackNicholson() throws CreateException, KBTypeException {
     System.out.println("Setting up JackNicholson.");
     
@@ -227,7 +251,7 @@ public class CoreAPIUsage {
 
     /* There's also a get method, but it should only be used if you're sure the term is in the KB.  This
      code shows how to test whether a term is in the KB, and then actually gets it.  In most real-world
-     cases, you won't run this test before every call to get. */
+     cases, you won't runExample this test before every call to get. */
     if (KBIndividualImpl.getStatus("JackNicholson").equals(KBStatus.EXISTS_WITH_COMPATIBLE_TYPE)) {
       JackNicholson = KBIndividualImpl.get("JackNicholson");
     }
@@ -251,13 +275,16 @@ public class CoreAPIUsage {
             "Nicholson and NicholsonTerm refer to different things in the KB";
   }
 
+  /**
+   * Similar to Jack Nicholson, we need a handle to the representation of the movie "The King of 
+   * Marvin Gardens" in the KB. Once again we are not sure if this term exists in the KB.
+   * 
+   * @throws CreateException
+   * @throws KBTypeException
+   * @throws DeleteException 
+   */
   private void setupMarvinGardens() throws CreateException, KBTypeException, DeleteException {
     System.out.println("Setting up MarvinGardens.");
-    
-    /* Similar to Jack Nicholson, we need a handle to the representation of the
-     movie "The King of Marvin Gardens" in the KB. Once again we are not sure if
-     this term exists in the KB */
-
     /*
     If you would like to ensure that the specific constant name 
     "TheKingOfMarvinGardens-TheMovie" is not being used, then check for its 
@@ -311,9 +338,15 @@ public class CoreAPIUsage {
     TheKingOfMarvinGardens_TheMovie.addArg2(movieAdvisoryRating, RestrictedRating, MassMediaMt);
   }
 
+  /**
+   * Construct a query from a sentence (which could be the result of logically connecting other 
+   * sentences).
+   * 
+   * @return Query
+   * @throws KBApiException
+   * @throws QueryConstructionException 
+   */
   private Query createQueryViaKBSentence() throws KBApiException, QueryConstructionException {
-    /* This method constructs a query from a sentence (which could be the result of
-     logically connecting other sentences) */
     Set<Sentence> movieSentences = new HashSet<Sentence>();
     Variable movieVar = new VariableImpl("?MOVIE");
     movieSentences.add(new SentenceImpl(movieActors, movieVar, JackNicholson));
@@ -340,9 +373,15 @@ public class CoreAPIUsage {
     return q;
   }
 
+  /**
+   * Just as we can create a query using a Sentence object, we can also create one using a String 
+   * containing a CycL sentence.
+   * 
+   * @return
+   * @throws QueryConstructionException 
+   */
   private Query createQueryViaString() throws QueryConstructionException {
-    /* Just as we can create a query using a Sentence object, we can also create one using
-     a String containing a CycL sentence.
+    /* 
      Note that the #$ prefix for constant names is not required, and that the
      toString method on KBObjects yields a string that can be used in this kind
      of method.
@@ -354,8 +393,15 @@ public class CoreAPIUsage {
     return q;
   }
 
+  /**
+   * Having constructed a query, let's execute it...
+   * 
+   * @param q
+   * @throws KBApiException
+   * @throws CycTimeOutException
+   * @throws CycConnectionException 
+   */
   private void runQueryAndTestAnswers(Query q) throws KBApiException, CycTimeOutException, CycConnectionException {
-    /* Having constructed the query, let's execute it */
     KBInferenceResultSet results = q.getResultSet();
     /* Now let's verify that TheKingOfMarvinGardens-TheMovie is one of the results returned */
     boolean found = false;
@@ -370,7 +416,7 @@ public class CoreAPIUsage {
     System.out.println();
     assert (found) : "The KB does not know about Jack Nicholson's R-rated movie The King of "
             + "Marvin Gardens";
-
+    
     /* Closing the query performs clean up operations. Not closing queries leaves objects in the Cyc
      server, and can cause memory leaks.  The finalize method on the query closes it, thereby releasing
      resources on the Cyc server, but it is performed at the mercy of the garbage collector.  To ensure

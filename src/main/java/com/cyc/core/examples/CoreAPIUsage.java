@@ -41,6 +41,8 @@ import com.cyc.kb.client.KBIndividualImpl;
 import com.cyc.kb.client.KBTermImpl;
 import com.cyc.kb.client.SentenceImpl;
 import com.cyc.kb.client.VariableImpl;
+import com.cyc.kb.config.KBAPIConfiguration;
+import com.cyc.kb.config.KBAPIDefaultContext;
 import com.cyc.kb.exception.CreateException;
 import com.cyc.kb.exception.DeleteException;
 import com.cyc.kb.exception.KBApiException;
@@ -48,6 +50,7 @@ import com.cyc.kb.exception.KBTypeException;
 import com.cyc.query.KBInferenceResultSet;
 import com.cyc.query.Query;
 import com.cyc.query.exception.QueryConstructionException;
+import com.cyc.session.CycSession;
 import com.cyc.session.CycSessionManager;
 import com.cyc.session.SessionApiException;
 import java.util.Collection;
@@ -97,14 +100,16 @@ public class CoreAPIUsage {
       get access to Cyc. By default, in a graphical environment, it will fall 
       back on interactively prompting the user for connection information.
       */
-      System.out.println("Acquired a cyc server... " + CycSessionManager.getCurrentSession().getServerInfo().getCycServer());
-
+      CycSession session = CycSessionManager.getCurrentSession();
+      System.out.println("Acquired a cyc server... " + session.getServerInfo().getCycServer());
+      
       /* Initialize the default assertion and query contexts to UniversalVocabularyMt and InferencePSC resp. */
-      Initializer.setDefaultContexts(Constants.uvMt(), Constants.inferencePSCMt());
+      KBAPIConfiguration.setDefaultContext(new KBAPIDefaultContext(Constants.uvMt(), Constants.inferencePSCMt()));
+      
       // setTranscriptOperations will Transcript the Cyc operations issued by the API
       // These operations can be saved into a ASCII text file and reloaded on a clean image to recreate 
       // a given state of the KB with such operations.
-      Initializer.setTranscriptOperations(true);
+      KBAPIConfiguration.setShouldTranscriptOperations(true);
       
       // This will set "TheUser" as the current Cyclist.
       // Setting the cyclist is required for Bookkeeping information to be added for

@@ -1,4 +1,4 @@
-package com.cyc.km.query.construction;
+package com.cyc.core.examples.advanced;
 
 
 
@@ -30,8 +30,11 @@ import com.cyc.kb.config.KBAPIConfiguration;
 import com.cyc.km.modeling.task.CycBasedTask;
 import com.cyc.query.Query;
 import com.cyc.kb.KBObject;
+import com.cyc.kb.exception.KBApiException;
+import com.cyc.km.query.construction.QuerySearch;
 import com.cyc.nl.Span;
 import com.cyc.session.CycSessionManager;
+import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -53,13 +56,13 @@ public class QuerySearching {
     final String exampleName = QuerySearching.class.getSimpleName();
     try {
       System.out.println("Running " +  exampleName + "...");
-
-      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
+/*
+//      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
         System.out.println("The \"Query Search\" feature is not available in OpenCyc.");
         System.out.println("... " +  exampleName + " concluded.");
         System.exit(0);
-      }
-             
+//      }
+*/           
       KBAPIConfiguration.setShouldTranscriptOperations(false);
       QuerySearch querySearch = getQuerySearch();
       getAndDisplayTerms(querySearch);
@@ -77,8 +80,9 @@ public class QuerySearching {
    * Get a task with respect to which the query search will be performed.
    *
    * @return a task
+   * @throws com.cyc.session.exception.OpenCycUnsupportedFeatureException
    */
-  public static CycBasedTask getATask() {
+  public static CycBasedTask getATask() throws OpenCycUnsupportedFeatureException {
     // First, get all known tasks:
     final Set<CycBasedTask> allTasks = new HashSet<CycBasedTask>();
     try {
@@ -109,7 +113,7 @@ public class QuerySearching {
    * @param querySearch
    * @throws Exception
    */
-  public static void getAndDisplayQueries(final QuerySearch querySearch) throws CycConnectionException {
+  public static void getAndDisplayQueries(final QuerySearch querySearch) throws CycConnectionException, KBApiException {
     final Collection<Query> queries = querySearch.getQueries();
     System.out.println("========================\nFound " + queries.size()
             + " queries:\n========================");
@@ -118,7 +122,7 @@ public class QuerySearching {
       System.out.println(showLocations(querySearch.getSearchString(),
               querySearch.getQueryLocations(query)));
       System.out.println("CycL: "
-              + query.getQuerySentenceCyc());
+              + query.getQuerySentence());
       System.out.println("Gloss: "
               + paraphraser.paraphrase(query).getString());
       System.out.println();
@@ -217,7 +221,7 @@ public class QuerySearching {
    * @return the QuerySearch object for the sample task
    * @throws JAXBException
    */
-  public static QuerySearch getQuerySearch() throws JAXBException {
+  public static QuerySearch getQuerySearch() throws JAXBException, OpenCycUnsupportedFeatureException {
     final CycBasedTask task = getATask();
     final QuerySearch querySearch = new QuerySearch(searchString, task);
     return querySearch;

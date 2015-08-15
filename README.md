@@ -40,12 +40,12 @@ All of the code demonstrated here is compatible with **EnterpriseCyc 1.7-preview
 note that, by design, EnterpriseCyc does not contain the _KB content_ necessary to run these 
 specific examples.
 
-The Core APIs are compatible with **OpenCyc 5.0-preview** of higher, although OpenCyc does not have
-support for advanced features such as QuerySearch or ProofViewJustification. Classes and methods 
-which are not supported by OpenCyc will reflect this in their javadoc description and in their 
-signature by declaring that they throw a `com.cyc.session.exception.OpenCycUnsupportedServerException`.
-All of the example code in `com.cyc.core.examples.basics` demonstrates OpenCyc-supported 
-functionality.
+The Core APIs also include support for the planned upcoming release of **OpenCyc 5.0-preview**,
+although OpenCyc does not have support for advanced features such as QuerySearch or 
+ProofViewJustification. Classes and methods which are not supported by OpenCyc will reflect this in 
+their javadoc description and in their signature by declaring that they throw a 
+`com.cyc.session.exception.OpenCycUnsupportedServerException`. All of the example code in 
+`com.cyc.core.examples.basics` demonstrates OpenCyc-supported functionality. 
 
 For inquiries about obtaining a suitable version of Cyc, please visit the
 [Cyc Dev Center download page](http://dev.cyc.com/cyc-api/download.html).

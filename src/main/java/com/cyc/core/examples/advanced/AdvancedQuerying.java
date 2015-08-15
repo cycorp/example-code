@@ -1,4 +1,4 @@
-package com.cyc.km.query.construction;
+package com.cyc.core.examples.advanced;
 
 /*
  * #%L
@@ -20,18 +20,18 @@ package com.cyc.km.query.construction;
  * limitations under the License.
  * #L%
  */
-import com.cyc.base.inference.InferenceStatus;
-import com.cyc.base.inference.InferenceSuspendReason;
 import com.cyc.baseclient.export.ExportException;
-import com.cyc.baseclient.inference.DefaultInferenceStatus;
 import com.cyc.kb.KBCollection;
 import com.cyc.kb.KBObject;
 import com.cyc.kb.Variable;
 import com.cyc.kb.client.KBCollectionImpl;
 import com.cyc.kb.exception.KBApiException;
 import com.cyc.km.query.export.CSVResultsExporter;
+import com.cyc.query.InferenceStatus;
+import com.cyc.query.InferenceSuspendReason;
 import com.cyc.query.Query;
 import com.cyc.query.QueryAnswer;
+import com.cyc.query.QueryFactory;
 import com.cyc.query.QueryListener;
 import com.cyc.query.exception.QueryConstructionException;
 import java.util.Arrays;
@@ -49,7 +49,7 @@ public class AdvancedQuerying {
 
       demonstrateIncrementalResultsQuery();
 
-      Query q = new Query("(and (genls HomoSapiens ?TYPE) (scientificName ?TYPE ?NAME))", "InferencePSC");
+      Query q = QueryFactory.getQuery("(and (genls HomoSapiens ?TYPE) (scientificName ?TYPE ?NAME))", "InferencePSC");
       if (q.getAnswerCount() > 25) {
         System.out.print("First 25 ");
       }
@@ -87,7 +87,7 @@ public class AdvancedQuerying {
         if (!kbSpecies.isInstanceOf("BiologicalSpecies")) {
           throw new RuntimeException(kbSpecies + " is not known to be a species.");
         } else {
-          final Query indexicalQuery = new Query("(and (genls (TheFn BiologicalSpecies) ?TYPE) (scientificName ?TYPE ?NAME))", "InferencePSC");
+          final Query indexicalQuery = QueryFactory.getQuery("(and (genls (TheFn BiologicalSpecies) ?TYPE) (scientificName ?TYPE ?NAME))", "InferencePSC");
           substitutions.put(theSpecies, kbSpecies);
           indexicalQuery.substituteTerms(substitutions);
           System.out.println("\nResults for " + species + ": ");
@@ -156,7 +156,7 @@ public class AdvancedQuerying {
     // A query that should get lots of results, not all at once:
     final Query query;
     try {
-      query = new Query("(#$and \n"
+      query = QueryFactory.getQuery("(#$and \n"
               + "(#$integerBetween 1 ?N 10000) \n"
               + "(#$isa ?N #$PrimeNumber))");
     } catch (QueryConstructionException ex) {
@@ -173,10 +173,9 @@ public class AdvancedQuerying {
       }
 
       @Override
-      public void notifyInferenceStatusChanged(InferenceStatus oldStatus, InferenceStatus newStatus,
-              InferenceSuspendReason suspendReason, Query query) {
+      public void notifyInferenceStatusChanged(InferenceStatus oldStatus, InferenceStatus newStatus, InferenceSuspendReason suspendReason, Query query) {
         System.out.println("Inference status changed from " + oldStatus + " to " + newStatus);
-        if (DefaultInferenceStatus.SUSPENDED.equals(newStatus)) {
+        if (InferenceStatus.SUSPENDED.equals(newStatus)) {
           System.out.println("Suspend reason: " + suspendReason);
         }
       }
@@ -184,7 +183,7 @@ public class AdvancedQuerying {
       @Override
       public void notifyInferenceAnswersAvailable(Query query, List<QueryAnswer> newAnswers) {
         int answerCount = 0;
-          answerCount = query.getAnswerCount();
+        answerCount = query.getAnswerCount();
         System.out.println("New answers! Query now has " + answerCount + " answers.");
         try {//Do stuff with an answer:
           final QueryAnswer answer = newAnswers.get(newAnswers.size() - 1);
@@ -205,8 +204,8 @@ public class AdvancedQuerying {
       public void notifyInferenceTerminated(Query query, Exception e) {
         System.out.println("Query terminated.");
       }
-
     });
+    
     try {
       // Start the inference. This won't return until the inference terminates:
       query.performInference();

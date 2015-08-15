@@ -1,4 +1,4 @@
-package com.cyc.km.query.construction;
+package com.cyc.core.examples.advanced;
 
 /*
  * #%L
@@ -32,9 +32,11 @@ import com.cyc.kb.exception.CreateException;
 import com.cyc.kb.exception.KBApiException;
 import com.cyc.kb.exception.KBTypeException;
 import com.cyc.km.modeling.task.CycBasedTask;
+import com.cyc.km.query.construction.QuerySearch;
 import com.cyc.query.Query;
 import com.cyc.query.exception.QueryConstructionException;
-import com.cyc.session.CycSessionManager;
+import com.cyc.session.SessionCommunicationException;
+import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -57,12 +59,13 @@ public class ConstructingQueries {
     termToReplace = KBCollectionImpl.get("NaturalGas");
     try {
       System.out.println("Running " +  exampleName + "...");
-      
-      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
+      /*
+//      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
         System.out.println("The \"Query Search and Construction\" feature is not available in OpenCyc.");
         System.out.println("... " +  exampleName + " concluded.");
         System.exit(0);
-      }
+//      }
+              */
       KBAPIConfiguration.setShouldTranscriptOperations(false);
       querySearch = QuerySearching.getQuerySearch();
       final Set<Query> fragments = getFragments();
@@ -97,7 +100,7 @@ public class ConstructingQueries {
   }
 
   public static Query combineFragments(final Set<Query> fragments) 
-          throws QueryConstructionException, CycConnectionException {
+          throws QueryConstructionException, SessionCommunicationException, OpenCycUnsupportedFeatureException {
     Query combinedQuery = null;
     for (final Query query : fragments) {
       if (combinedQuery == null) {
@@ -111,7 +114,7 @@ public class ConstructingQueries {
   }
 
   public static void getAndDisplayCandidateReplacements(final Query query,
-          final Object term) throws CycConnectionException, KBApiException, IOException {
+          final Object term) throws KBApiException, IOException, OpenCycUnsupportedFeatureException {
     final Sentence querySentence = query.getQuerySentence();
     final ArgPosition argPosition = querySentence.getArgPositionsForTerm(term).iterator().next();
     final CycBasedTask task = querySearch.getTask();

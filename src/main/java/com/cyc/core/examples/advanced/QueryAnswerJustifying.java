@@ -1,4 +1,4 @@
-package com.cyc.km.query.construction;
+package com.cyc.core.examples.advanced;
 
 /*
  * #%L
@@ -21,14 +21,14 @@ package com.cyc.km.query.construction;
  * #L%
  */
 
-import com.cyc.base.CycApiException;
 import com.cyc.base.CycConnectionException;
-import com.cyc.base.CycTimeOutException;
 import com.cyc.base.justification.Justification;
 import com.cyc.baseclient.justification.JustificationWalker;
 import com.cyc.km.query.answer.justification.ProofViewJustification;
 import com.cyc.query.Query;
-import com.cyc.session.CycSessionManager;
+import com.cyc.query.QueryFactory;
+import com.cyc.session.SessionCommunicationException;
+import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 import java.io.IOException;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.TextExtractor;
@@ -41,13 +41,14 @@ public class QueryAnswerJustifying {
     final String exampleName = QueryAnswerJustifying.class.getSimpleName();
     try {
       System.out.println("Running " +  exampleName + "...");
-      
-      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
+      /*
+//      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
         System.out.println("The \"Query Justification\" feature is not available in OpenCyc.");
         System.out.println("... " +  exampleName + " concluded.");
         System.exit(0);
-      }
-      Query combinedQuery = new Query("(and (isa ?X PubliclyHeldCorporation) (stockTickerSymbol ?X ?Y))", "InferencePSC");
+//      }
+      */
+      Query combinedQuery = QueryFactory.getQuery("(and (isa ?X PubliclyHeldCorporation) (stockTickerSymbol ?X ?Y))", "InferencePSC");
       //In order to justify an answer, the inference itself needs to still be present on the Cyc server."
       combinedQuery.retainInference();
 
@@ -67,7 +68,7 @@ public class QueryAnswerJustifying {
   }
 
   public static void displayAnswerJustification(final Query query)
-          throws CycApiException, CycTimeOutException, CycConnectionException, IOException {
+          throws IOException, OpenCycUnsupportedFeatureException, CycConnectionException, SessionCommunicationException {
     /* Get the justification for a particular answer.  In this case, we get the very first answer
     that came back. */
     final Justification justification = new ProofViewJustification(query.getAnswer(0));
@@ -83,7 +84,7 @@ public class QueryAnswerJustifying {
 
   /* The next two methods show how to traverse a justification.  In a real application, you'd probably
   want to do something more complicated than this with each of the nodes.  */
-  public static void displayJustification(final Justification justification) throws IOException {
+  public static void displayJustification(final Justification justification) throws IOException, OpenCycUnsupportedFeatureException {
     System.out.println("\n============= Justification ================");
     for (final JustificationWalker walker = new JustificationWalker(
             justification); walker.hasNext();) {

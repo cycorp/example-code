@@ -21,8 +21,6 @@ package com.cyc.core.examples.basics;
  * #L%
  */
 
-import com.cyc.base.CycConnectionException;
-import com.cyc.base.CycTimeOutException;
 import com.cyc.kb.BinaryPredicate;
 import com.cyc.kb.Context;
 import com.cyc.kb.Fact;
@@ -46,9 +44,11 @@ import com.cyc.kb.config.KBAPIDefaultContext;
 import com.cyc.kb.exception.CreateException;
 import com.cyc.kb.exception.DeleteException;
 import com.cyc.kb.exception.KBApiException;
+import com.cyc.kb.exception.KBObjectNotFoundException;
 import com.cyc.kb.exception.KBTypeException;
-import com.cyc.query.KBInferenceResultSet;
 import com.cyc.query.Query;
+import com.cyc.query.QueryFactory;
+import com.cyc.query.QueryResultSet;
 import com.cyc.query.exception.QueryConstructionException;
 import com.cyc.session.CycSession;
 import com.cyc.session.CycSessionManager;
@@ -70,13 +70,6 @@ import java.util.Set;
  */
 public class CoreAPIUsage {
   
-  /**
-   * Illustrates popular paradigms of interaction with Cyc through the Core API
-   * using a movie theme. In this simple exercise, we will tell Cyc that the
-   * movie actor Jack Nicholson played a leading role in the R-rated movie
-   * <i>The King of Marvin Gardens</i>. Then we will query the Cyc KB to make
-   * sure Cyc remembers the fact.
-   */
   static BinaryPredicate movieActors;
   static KBCollection RestrictedRating;
   static BinaryPredicate movieAdvisoryRating;
@@ -96,9 +89,6 @@ public class CoreAPIUsage {
       // Here's where the example begins...
       usage.runExample();
       
-    } catch (CycConnectionException cce) {
-      cce.printStackTrace(System.err);
-      System.exit(1);
     } catch (KBApiException kbe) {
       kbe.printStackTrace(System.err);
       System.exit(1);
@@ -117,7 +107,14 @@ public class CoreAPIUsage {
     }
   }
   
-  private void runExample() throws CreateException, KBTypeException, DeleteException, SessionApiException, KBApiException, QueryConstructionException, CycConnectionException {
+  /**
+   * Illustrates popular paradigms of interaction with Cyc through the Core API
+   * using a movie theme. In this simple exercise, we will tell Cyc that the
+   * movie actor Jack Nicholson played a leading role in the R-rated movie
+   * <i>The King of Marvin Gardens</i>. Then we will query the Cyc KB to make
+   * sure Cyc remembers the fact.
+   */
+  private void runExample() throws CreateException, KBTypeException, DeleteException, SessionApiException, KBApiException, QueryConstructionException {
     
     /* Connect to a Cyc server and set a few basic options. */
     setUpCyc();
@@ -293,11 +290,12 @@ public class CoreAPIUsage {
     
     // We will ensure that TheKingOfMarvinGardens-TheMovie does not exist
     try {
+      System.out.println("Attempting to delete TheKingOfMarvinGardens-TheMovie...");
       KBIndividualImpl.get("TheKingOfMarvinGardens-TheMovie").delete();
-    } catch (Exception e) {
+    } catch (KBObjectNotFoundException e) {
       // Expect KBObjectNotFoundException stack trace if "TheKingOfMarvinGardens-TheMovie" is not in the KB
       // Otherwise the concept will be deleted without exceptions. 
-      e.printStackTrace();
+      System.out.println("... Apparently it was not in the KB: " + e.getMessage());
     }
     
     try {
@@ -353,15 +351,17 @@ public class CoreAPIUsage {
     movieSentences.add(new SentenceImpl(movieAdvisoryRating, movieVar, RestrictedRating));
     Sentence querySentence = SentenceImpl.and(movieSentences);
 
-    /* The above construction creates the Sentence 
+    /* The above construction creates the Sentence:
+    
      "(and (movieActors ?MOVIE JackNicholson) 
-     (movieAdvisoryRating ?MOVIE RestrictedRating))". 
+       (movieAdvisoryRating ?MOVIE RestrictedRating))". 
+    
      Now we can construct a query for this sentence. We will use InferencePSC, the 
      all-encompassing context, as the context in which to execute the query. Note 
      here we retrieve a handle to InferencePSC from the Constants class (which 
      maintains handles to popular constants) but we could also have retrieved it
      using Context.get("InferencePSC"). */
-    Query q = new Query(querySentence, Constants.inferencePSCMt());
+    Query q = QueryFactory.getQuery(querySentence, Constants.inferencePSCMt());
 
     /* Let's set a few parameters for efficiency using our knowledge of answer
      expectations. In particular we will set a cap on the number of results 
@@ -386,7 +386,7 @@ public class CoreAPIUsage {
      toString method on KBObjects yields a string that can be used in this kind
      of method.
      */
-    Query q = new Query("(and (movieActors ?MOVIE " + JackNicholson + ")"
+    Query q = QueryFactory.getQuery("(and (movieActors ?MOVIE " + JackNicholson + ")"
             + "(movieAdvisoryRating ?MOVIE RestrictedRating))");
 
     q.setMaxNumber(10).setMaxTime(2).setBrowsable(true);
@@ -401,15 +401,15 @@ public class CoreAPIUsage {
    * @throws CycTimeOutException
    * @throws CycConnectionException 
    */
-  private void runQueryAndTestAnswers(Query q) throws KBApiException, CycTimeOutException, CycConnectionException {
-    KBInferenceResultSet results = q.getResultSet();
+  private void runQueryAndTestAnswers(Query q) throws KBApiException {
+    QueryResultSet results = q.getResultSet();
     /* Now let's verify that TheKingOfMarvinGardens-TheMovie is one of the results returned */
     boolean found = false;
     System.out.println("The query statement is : " + q.getQuerySentence());
     System.out.println("And the results are : ");
     while (results.next()) {
-      System.out.println((KBIndividual) results.getKBObject("?MOVIE"));
-      if (((KBIndividual) results.getKBObject("?MOVIE")).equals(TheKingOfMarvinGardens_TheMovie)) {
+      System.out.println(results.getKBObject("?MOVIE", KBIndividual.class));
+      if (results.getKBObject("?MOVIE", KBIndividual.class).equals(TheKingOfMarvinGardens_TheMovie)) {
         found = true;
       }
     }

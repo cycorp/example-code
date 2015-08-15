@@ -4,7 +4,7 @@
   
   <artifactId>cyc-api-use-cases</artifactId>
   <groupId>com.cyc</groupId>
-  <version>1.0.0-rc2</version>
+  <version>1.0.0-rc3</version>
   <packaging>jar</packaging>
   
   <name>Cyc Core API Use Cases</name>
@@ -102,7 +102,11 @@
     <dependency>
       <groupId>com.cyc</groupId>
       <artifactId>cyc-core-suite</artifactId>
-      <version>1.0.0-rc2</version>
+      <version>1.0.0-rc3</version>
+      <!--
+      To use a standalone jar, uncomment the following:
+      <classifier>jar-with-dependencies</classifier>
+      -->
     </dependency>
     
     <!--
@@ -113,6 +117,15 @@
       <artifactId>jericho-html</artifactId>
       <version>3.3</version>
     </dependency>
+    
+    <!--
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.12</version>
+      <scope>provided</scope>
+    </dependency>
+    -->
     
     <!-- 
          Enables logging of Cyc APIs. Cyc APIs use SLF4J, which must be bound
@@ -125,7 +138,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.7</version>
+      <version>1.7.12</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>

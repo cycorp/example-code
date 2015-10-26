@@ -3,7 +3,7 @@ package com.cyc.core.examples.advanced;
 /*
  * #%L
  * File: ProofViewMarshallerExample.java
- * Project: Cyc Core API Use Cases
+ * Project: Core API Use Cases
  * %%
  * Copyright (C) 2013 - 2015 Cycorp, Inc.
  * %%

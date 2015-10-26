@@ -3,7 +3,7 @@ package com.cyc.core.examples.basics;
 /*
  * #%L
  * File: CoreAPIUsage.java
- * Project: Cyc Core API Use Cases
+ * Project: Core API Use Cases
  * %%
  * Copyright (C) 1995 - 2014 Cycorp, Inc
  * %%

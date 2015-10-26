@@ -3,7 +3,7 @@ package com.cyc.core.examples.advanced;
 /*
  * #%L
  * File: ConstructingQueries.java
- * Project: Cyc Core API Use Cases
+ * Project: Core API Use Cases
  * %%
  * Copyright (C) 1995 - 2014 Cycorp, Inc
  * %%

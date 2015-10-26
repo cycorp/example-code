@@ -5,10 +5,11 @@ This project provides examples of common usage of the
 [Cyc Core API Suite](https://github.com/cycorp/CycCoreAPI).
 
 It is generally recommended that you download the latest release of the Core API Use Cases from the
-[releases page](https://github.com/cycorp/CoreAPIUseCases/releases), as it will rely on the latest
+[releases page](https://github.com/cycorp/CycAPIExamples/releases), as it will rely on the latest
 _released version_ of the Core APIs.
 
 For more information, visit the [Cyc Developer Center](http://dev.cyc.com/).
+
 
 Requirements
 ------------
@@ -23,12 +24,12 @@ Requirements
 
 You have two options:
 
-If you are using a [tagged release](https://github.com/cycorp/CoreAPIUseCases/releases) of the Core
+If you are using a [tagged release](https://github.com/cycorp/CycAPIExamples/releases) of the Core
 API Use Cases project, Maven will automatically download and install appropriate versions of the 
 Core API libraries for you.
 
 If you are using the latest version of the Use Cases from the 
-[git repository](https://github.com/cycorp/CoreAPIUseCases), then you will need to manually build
+[git repository](https://github.com/cycorp/CycAPIExamples), then you will need to manually build
 and install the latest \*-SNAPSHOT version of the [Core APIs](https://github.com/cycorp/CycCoreAPI)
 from source.
 
@@ -48,7 +49,7 @@ their javadoc description and in their signature by declaring that they throw a
 `com.cyc.core.examples.basics` demonstrates OpenCyc-supported functionality. 
 
 For inquiries about obtaining a suitable version of Cyc, please visit the
-[Cyc Dev Center download page](http://dev.cyc.com/cyc-api/download.html).
+[Cyc Dev Center downloads page](http://dev.cyc.com/downloads/).
 
 
 Getting Started
@@ -66,16 +67,20 @@ You may instead specify a Cyc server by setting the Java System property `cyc.se
 your server's location, in the format `[HOST_NAME]:[BASE_PORT]`; e.g., 
 `cyc.session.server=localhost:3600`. See your IDE's documentation for details.
 
-You can also run a particular class from the command line. For example, assuming that you wanted to 
-run the `CoreAPIUsage` class against a Cyc server at `localhost:3600`, you would issue following 
-command:
+You can also run a particular class from the command line. First, build the project:
 
-    mvn exec:java -Dexec.mainClass="com.cyc.coreapiusecases.CoreAPIUsage" -Dcyc.session.server=localhost:3600
+    mvn clean compile
+
+Then, for example, if you wanted to run the `CoreAPIUsage` class against a Cyc server at 
+`localhost:3600`, you would issue the following command:
+
+    mvn exec:java -Dexec.mainClass="com.cyc.core.examples.basics.CoreAPIUsage" -Dcyc.session.server=localhost:3600
 
 ### Logging
 
 If you wish to modify the logging level of the Cyc APIs, you can change the settings in 
 `src/main/resources/log4j.properties`.
+
 
 Knowledge Editing and Ontology Development
 ------------------------------------------
@@ -83,14 +88,16 @@ Knowledge Editing and Ontology Development
 A Cyc application is only as good as the knowledge in Cyc's KB. Read up on 
 [ontology development](http://dev.cyc.com/ontology-development/).
 
+
 Further Documentation
 ---------------------
 
 Further API documentation, including Javadocs, is available at 
-[Cyc Developer Center](http://dev.cyc.com/cyc-api/).
+[Cyc Developer Center](http://dev.cyc.com/api/).
+
 
 Contact
 -------
 
 For questions about the APIs or issues with using them, please visit the 
-[Cyc Dev Center issues page](http://dev.cyc.com/cyc-api/issues.html).
+[Cyc Dev Center issues page](http://dev.cyc.com/issues/).

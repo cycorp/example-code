@@ -7,18 +7,18 @@
   <version>1.0.0-rc3</version>
   <packaging>jar</packaging>
   
-  <name>Cyc Core API Use Cases</name>
+  <name>Core API Use Cases</name>
   <description>Examples of common usage of the Cyc Core API Suite.</description>
-  <url>http://dev.cyc.com/cyc-api/</url>
+  <url>http://dev.cyc.com/api/samples</url>
   
   <scm>
-    <connection>scm:git:git@github.com:cycorp/CoreAPIUseCases.git</connection>
-    <developerConnection>scm:git:git@github.com:cycorp/CoreAPIUseCases.git</developerConnection>
-    <url>https://github.com/cycorp/CoreAPIUseCases</url>
+    <connection>scm:git:git@github.com:cycorp/CycAPIExamples.git</connection>
+    <developerConnection>scm:git:git@github.com:cycorp/CycAPIExamples.git</developerConnection>
+    <url>https://github.com/cycorp/CycAPIExamples</url>
   </scm>
   
   <issueManagement>
-    <url>https://github.com/cycorp/CoreAPIUseCases/issues</url>
+    <url>https://github.com/cycorp/CycAPIExamples/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
   

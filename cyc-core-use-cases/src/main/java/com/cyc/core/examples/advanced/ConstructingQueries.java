@@ -22,7 +22,6 @@ package com.cyc.core.examples.advanced;
  */
 
 import com.cyc.base.CycConnectionException;
-import com.cyc.baseclient.nl.Paraphraser;
 import com.cyc.kb.ArgPosition;
 import com.cyc.kb.KBCollection;
 import com.cyc.kb.Sentence;
@@ -33,9 +32,12 @@ import com.cyc.kb.exception.KBApiException;
 import com.cyc.kb.exception.KBTypeException;
 import com.cyc.km.modeling.task.CycBasedTask;
 import com.cyc.km.query.construction.QuerySearch;
+import com.cyc.nl.Paraphraser;
 import com.cyc.query.Query;
 import com.cyc.query.exception.QueryConstructionException;
+import com.cyc.session.CycSessionManager;
 import com.cyc.session.SessionCommunicationException;
+import com.cyc.session.SessionManager;
 import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 import java.io.IOException;
 import java.util.HashSet;
@@ -57,7 +59,7 @@ public class ConstructingQueries {
   public static void main(String[] args) throws KBTypeException, CreateException {
     final String exampleName = ConstructingQueries.class.getSimpleName();
     termToReplace = KBCollectionImpl.get("NaturalGas");
-    try {
+    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
       System.out.println("Running " +  exampleName + "...");
       /*
 //      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
@@ -122,7 +124,9 @@ public class ConstructingQueries {
             = task.getCandidateReplacements(querySentence, argPosition);
     System.out.println("Found " + candidateReplacements.size() + " candidate replacements for "
             + termToReplace + ":");
-
+    for (Object replacement : candidateReplacements) {
+      System.out.println(" - " + replacement);
+    }
     System.out.println("=========== Building Hierarchy ==============");
 
   }

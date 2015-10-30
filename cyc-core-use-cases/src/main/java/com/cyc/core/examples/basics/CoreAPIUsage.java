@@ -53,6 +53,8 @@ import com.cyc.query.exception.QueryConstructionException;
 import com.cyc.session.CycSession;
 import com.cyc.session.CycSessionManager;
 import com.cyc.session.SessionApiException;
+import com.cyc.session.SessionManager;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,15 +82,22 @@ public class CoreAPIUsage {
   private KBIndividual JackNicholson;
   private KBIndividual TheKingOfMarvinGardens_TheMovie;
     
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     final String exampleName = CoreAPIUsage.class.getSimpleName();
-    try {
-      System.out.println("Running " +  exampleName + "...");
+
+    /*
+     Wrapping the current SessionManager instance in a try-with-resources statement (Java 7 and 
+     later) in the main method ensures that ALL CycSessions created by the SessionManager are 
+     closed, along with all of their Cyc server connections, before the program ends:
+     */
+    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
+
+      System.out.println("Running " + exampleName + "...");
       CoreAPIUsage usage = new CoreAPIUsage();
-      
-      // Here's where the example begins...
+
+      //Here's where we run the example code...
       usage.runExample();
-      
+
     } catch (KBApiException kbe) {
       kbe.printStackTrace(System.err);
       System.exit(1);
@@ -102,7 +111,14 @@ public class CoreAPIUsage {
       ex.printStackTrace(System.err);
       System.exit(1);
     } finally {
-      System.out.println("... " +  exampleName + " concluded.");
+      /*
+       If we were running under Java 6, we could manually close the current SessionManager here 
+       within the finally block, like so:
+      
+       CycSessionManager.getInstance().close();
+       */
+
+      System.out.println("... " + exampleName + " concluded.");
       System.exit(0);
     }
   }
@@ -115,37 +131,59 @@ public class CoreAPIUsage {
    * sure Cyc remembers the fact.
    */
   private void runExample() throws CreateException, KBTypeException, DeleteException, SessionApiException, KBApiException, QueryConstructionException {
+ 
+    /* 
+     Here we ensure that the CycSession for the current thread is closed before the thread is 
+     terminated. This may seem a little redundant, as this is a single-threaded application and
+     we're already closing the SessionManager in the main() method (thereby closing ALL
+     CycSessions). Although this isn't necessary for simple applications like this one, it is good
+     practice for multi-threaded applications (e.g., servlets), so we're demonstrating it here.
     
-    /* Connect to a Cyc server and set a few basic options. */
-    setUpCyc();
-    CoreAPIUsage.initializeStatics();
-    
-    setupJackNicholson();
-    
-    setupMarvinGardens();
-
-    /* FOR FUTURE RELEASE (WITH NL API)
-     Yet another method to retrieve things from the KB is by using their natural
-     language representations
-     NLFormat nlf = NLFormat.getInstance();
-     List<Object> jacks = (List<Object>) nlf.parseObjects("Jack Nicholson");
-     boolean foundJackNicholsonByNLString = false;
-     for(Object NLJack : jacks) {
-     if(Nicholson.equalsSemantically(NLJack)) 
-     foundJackNicholsonByNLString = true;
-     }
-     assert (foundJackNicholsonByNLString) : "Could not retrieve Jack Nicholson by natural language parsing"; 
+     Typically, we don't need to directly request the current CycSession; if one does not exist, it 
+     will be automatically created the first time that the Cyc APIs require it. However, wrapping it
+     in a try-with-resources statement (Java 7 and later) ensures that the session will be cleaned 
+     up at the end of the current execution thread.
      */
+    try (CycSession session = CycSessionManager.getCurrentSession()) {
 
-    /* Now let's query the KB to make sure we we able to make the above 
-     assertions correctly. To that end, let's try to retrieve all movies in which 
-     Jack Nicholson has acted and which have a restricted rating and make sure 
-     that TheKingOfMarvinGardens-TheMovie appears in the results. */
-    runQueryAndTestAnswers(createQueryViaKBSentence());
+      /* Connect to a Cyc server and set a few basic options. */
+      setUpCyc();
+      CoreAPIUsage.initializeStatics();
 
-    /* The second method for creating a new query has a simpler form */
-    runQueryAndTestAnswers(createQueryViaString());
-    /* Execute the method illustrating Cyc Core API usage through a movie theme */
+      setupJackNicholson();
+      
+      setupMarvinGardens();
+
+      /* FOR FUTURE RELEASE (WITH NL API)
+       Yet another method to retrieve things from the KB is by using their natural
+       language representations
+       NLFormat nlf = NLFormat.getInstance();
+       List<Object> jacks = (List<Object>) nlf.parseObjects("Jack Nicholson");
+       boolean foundJackNicholsonByNLString = false;
+       for(Object NLJack : jacks) {
+       if(Nicholson.equalsSemantically(NLJack)) 
+       foundJackNicholsonByNLString = true;
+       }
+       assert (foundJackNicholsonByNLString) : "Could not retrieve Jack Nicholson by natural language parsing"; 
+       */
+
+      /* Now let's query the KB to make sure we we able to make the above 
+       assertions correctly. To that end, let's try to retrieve all movies in which 
+       Jack Nicholson has acted and which have a restricted rating and make sure 
+       that TheKingOfMarvinGardens-TheMovie appears in the results. */
+      runQueryAndTestAnswers(createQueryViaKBSentence());
+
+      /* The second method for creating a new query has a simpler form */
+      runQueryAndTestAnswers(createQueryViaString());
+      /* Execute the method illustrating Cyc Core API usage through a movie theme */
+    } finally {
+      /*
+       If we were running under Java 6, we could have manually closed the current CycSession here 
+       within the finally block, like so:
+      
+       CycSessionManager.getCurrentSession().close();
+       */
+    }
   }
   
   /**

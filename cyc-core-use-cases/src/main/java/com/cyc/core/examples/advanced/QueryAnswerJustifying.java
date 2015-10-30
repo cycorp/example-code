@@ -27,7 +27,9 @@ import com.cyc.baseclient.justification.JustificationWalker;
 import com.cyc.km.query.answer.justification.ProofViewJustification;
 import com.cyc.query.Query;
 import com.cyc.query.QueryFactory;
+import com.cyc.session.CycSessionManager;
 import com.cyc.session.SessionCommunicationException;
+import com.cyc.session.SessionManager;
 import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 import java.io.IOException;
 import net.htmlparser.jericho.Source;
@@ -39,7 +41,7 @@ public class QueryAnswerJustifying {
   first answer that comes back from Cyc. */
   public static void main(String[] args) {
     final String exampleName = QueryAnswerJustifying.class.getSimpleName();
-    try {
+    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
       System.out.println("Running " +  exampleName + "...");
       /*
 //      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {

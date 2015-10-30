@@ -25,15 +25,18 @@ package com.cyc.core.examples.advanced;
 
 import com.cyc.base.CycConnectionException;
 import com.cyc.base.cycobject.CycObject;
-import com.cyc.baseclient.nl.Paraphraser;
+import com.cyc.baseclient.nl.ParaphraserFactory;
+import com.cyc.baseclient.nl.ParaphraserFactory.ParaphrasableType;
 import com.cyc.kb.config.KBAPIConfiguration;
 import com.cyc.km.modeling.task.CycBasedTask;
 import com.cyc.query.Query;
 import com.cyc.kb.KBObject;
 import com.cyc.kb.exception.KBApiException;
 import com.cyc.km.query.construction.QuerySearch;
+import com.cyc.nl.Paraphraser;
 import com.cyc.nl.Span;
 import com.cyc.session.CycSessionManager;
+import com.cyc.session.SessionManager;
 import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 
 import java.util.Collection;
@@ -54,7 +57,7 @@ public class QuerySearching {
 
   public static void main(String[] args) {
     final String exampleName = QuerySearching.class.getSimpleName();
-    try {
+    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
       System.out.println("Running " +  exampleName + "...");
 /*
 //      if (CycSessionManager.getCurrentSession().getServerInfo().isOpenCyc()) {
@@ -191,7 +194,7 @@ public class QuerySearching {
    */
   public static Paraphraser getQueryParaphraser() {
     // Get a generic paraphraser:
-    final Paraphraser paraphraser = Paraphraser.getInstance(Paraphraser.ParaphrasableType.QUERY);
+    final Paraphraser paraphraser = ParaphraserFactory.getInstance(ParaphrasableType.QUERY);
     // This could be set either way. Experimentation encouraged!
     //paraphraser.setBlanksForVars(true); //this doesn't exist in the general paraphraser interface.  Only in the actual QueryParaphraser interface.
     return paraphraser;
@@ -206,7 +209,7 @@ public class QuerySearching {
    * @return the paraphraser
    */
   public static Paraphraser getTermParaphraser() {
-    final Paraphraser<CycObject> cycObjectParaphraser = Paraphraser.getInstance(Paraphraser.ParaphrasableType.KBOBJECT);
+    final Paraphraser<CycObject> cycObjectParaphraser = ParaphraserFactory.getInstance(ParaphrasableType.KBOBJECT);
     // Set the force appropriately for terms:
     //cycObjectParaphraser.setForce(NLForce.None);
     /** Wrap our CycObject paraphraser in an KBObject paraphraser that will delegate

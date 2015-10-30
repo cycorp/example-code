@@ -8,6 +8,14 @@ candidates will follow. Until the final 1.0.0 release, it is expected that futur
 will break backwards compatibility.
 
 
+1.0.0-rc4 - 2015-10-29
+----------------------
+Examples updated to work 
+against [Cyc Core API Suite 1.0.0-rc4](https://github.com/cycorp/CycCoreAPI/releases/tag/v1.0.0-rc4) and a
+[suitable version of Cyc](https://github.com/cycorp/CycAPIExamples/blob/v1.0.0-rc4/README.md#requirements).
+Note that 1.0.0-rc4 is _not backwards-compatible_ with earlier releases.
+
+
 1.0.0-rc3 - 2015-08-14
 ----------------------
 Adds support for the planned upcoming release of **OpenCyc 5.0-preview**. Examples updated to work 

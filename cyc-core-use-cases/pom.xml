@@ -4,7 +4,7 @@
   
   <artifactId>cyc-core-use-cases</artifactId>
   <groupId>com.cyc</groupId>
-  <version>1.0.0-rc3</version>
+  <version>1.0.0-rc4</version>
   <packaging>jar</packaging>
   
   <name>Core API Use Cases</name>
@@ -47,11 +47,24 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
   </properties>
   
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.1</version>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -102,7 +115,7 @@
     <dependency>
       <groupId>com.cyc</groupId>
       <artifactId>cyc-core-suite</artifactId>
-      <version>1.0.0-rc3</version>
+      <version>1.0.0-rc4</version>
       <!--
       To use a standalone jar, uncomment the following:
       <classifier>jar-with-dependencies</classifier>
@@ -131,9 +144,10 @@
          Enables logging of Cyc APIs. Cyc APIs use SLF4J, which must be bound
          to a logging framework at deployment time; here we use Log4j. 
          
-         See:
-         * http://www.slf4j.org/manual.html
-         * src/main/resources/log4j.properties
+         For details about configuring Cyc API logging, see:
+         
+         * http://dev.cyc.com/api/faq/api-logging.html
+         * This project's src/main/resources/log4j.properties
     -->
     <dependency>
       <groupId>org.slf4j</groupId>

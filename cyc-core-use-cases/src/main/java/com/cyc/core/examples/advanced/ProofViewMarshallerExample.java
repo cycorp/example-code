@@ -27,8 +27,12 @@ import com.cyc.kb.client.SentenceImpl;
 import com.cyc.km.query.answer.justification.ProofViewJustification;
 import com.cyc.query.QueryAnswer;
 import com.cyc.query.QueryImpl;
+import com.cyc.session.CycSessionManager;
+import com.cyc.session.SessionManager;
 import com.cyc.xml.query.ProofView;
 import com.cyc.xml.query.ProofViewMarshaller;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * A bare-bones, self-contained example of running a query and returning proofview XML.
@@ -36,6 +40,13 @@ import com.cyc.xml.query.ProofViewMarshaller;
  * @author nwinant
  */
 public class ProofViewMarshallerExample {
+  
+  static final private OutputStream OUT = new OutputStream() {
+    @Override
+    public void write(int b) throws IOException {
+      System.out.write(b);
+    }
+  };
   
   public void runExample() {
     QueryAnswer answer = null;
@@ -53,9 +64,8 @@ public class ProofViewMarshallerExample {
       final ProofViewJustification justification = new ProofViewJustification(answer);
       final ProofView proofView = justification.getProofView();
       
-      // Marshall proof view to XML. Here we pass it to System.out, but we could use any 
-      // OutputStream or Writer.
-      new ProofViewMarshaller().marshal(proofView, System.out);
+      // Marshall proof view to XML; we can use any OutputStream or Writer.
+      new ProofViewMarshaller().marshal(proofView, OUT);
     } catch (Throwable t) {
       t.printStackTrace(System.err);
     } finally {
@@ -68,10 +78,16 @@ public class ProofViewMarshallerExample {
   }
   
   public static void main(String args[]) {
-    try {
+    final String exampleName = ProofViewMarshallerExample.class.getSimpleName();
+    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
+      System.out.println("Running " +  exampleName + "...");
       ProofViewMarshallerExample example = new ProofViewMarshallerExample();
       example.runExample();
+    } catch (Exception ex) {
+      ex.printStackTrace(System.err);
+      System.exit(1);
     } finally {
+      System.out.println("... " +  exampleName + " concluded.");
       System.exit(0);
     }
   }

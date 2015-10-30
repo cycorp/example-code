@@ -34,6 +34,8 @@ import com.cyc.query.QueryAnswer;
 import com.cyc.query.QueryFactory;
 import com.cyc.query.QueryListener;
 import com.cyc.query.exception.QueryConstructionException;
+import com.cyc.session.CycSessionManager;
+import com.cyc.session.SessionManager;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,7 +46,7 @@ public class AdvancedQuerying {
 
   public static void main(String[] args) {
     final String exampleName = AdvancedQuerying.class.getSimpleName();
-    try {
+    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
       System.out.println("Running " + exampleName + "...");
 
       demonstrateIncrementalResultsQuery();

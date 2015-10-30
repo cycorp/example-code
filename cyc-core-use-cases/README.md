@@ -16,7 +16,7 @@ Requirements
 
 ### Java
 
-* `JDK 1.6` or greater.
+* `JDK 1.7` or greater.
 * [Apache Maven](http://maven.apache.org/), version `3.2` or higher. If you are new to Maven, you 
   may wish to view the [quick start](http://maven.apache.org/run-maven/index.html).
 
@@ -78,7 +78,11 @@ Then, for example, if you wanted to run the `CoreAPIUsage` class against a Cyc s
 
 ### Logging
 
-If you wish to modify the logging level of the Cyc APIs, you can change the settings in 
+Warning and error messages from the Cyc APIs are logged to the console, as well as to a logfile at
+`target/cyc-core-use-cases.log`. Note that this logfile will be erased every time the `mvn clean` 
+command is run.
+
+If you wish to modify the logging configuration for the Cyc APIs, you can change the settings in 
 `src/main/resources/log4j.properties`.
 
 

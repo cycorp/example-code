@@ -6,7 +6,7 @@
   
   <artifactId>cyc-core-api-use-cases</artifactId>
   <groupId>com.cyc</groupId>
-  <version>1.0.0-rc5-SNAPSHOT</version>
+  <version>1.0.0-rc5</version>
   <packaging>jar</packaging>
   
   <name>Core API Use Cases</name>

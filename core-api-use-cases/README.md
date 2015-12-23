@@ -2,10 +2,10 @@ Cyc Core API Use Cases
 ======================
 
 This project provides examples of common usage of the 
-[Cyc Core API Suite](https://github.com/cycorp/CycCoreAPI).
+[Cyc Core API Suite](https://github.com/cycorp/api-suite).
 
 It is generally recommended that you download the latest release of the Core API Use Cases from the
-[releases page](https://github.com/cycorp/CycAPIExamples/releases), as it will rely on the latest
+[releases page](https://github.com/cycorp/example-code/releases), as it will rely on the latest
 _released version_ of the Core APIs.
 
 For more information, visit the [Cyc Developer Center](http://dev.cyc.com/).
@@ -24,13 +24,13 @@ Requirements
 
 You have two options:
 
-If you are using a [tagged release](https://github.com/cycorp/CycAPIExamples/releases) of the Core
+If you are using a [tagged release](https://github.com/cycorp/example-code/releases) of the Core
 API Use Cases project, Maven will automatically download and install appropriate versions of the 
 Core API libraries for you.
 
 If you are using the latest version of the Use Cases from the 
-[git repository](https://github.com/cycorp/CycAPIExamples), then you will need to manually build
-and install the latest \*-SNAPSHOT version of the [Core APIs](https://github.com/cycorp/CycCoreAPI)
+[git repository](https://github.com/cycorp/example-code), then you will need to manually build
+and install the latest \*-SNAPSHOT version of the [Core APIs](https://github.com/cycorp/api-suite)
 from source.
 
 ### Cyc Server
@@ -71,10 +71,10 @@ You can also run a particular class from the command line. First, build the proj
 
     mvn clean compile
 
-Then, for example, if you wanted to run the `CoreAPIUsage` class against a Cyc server at 
+Then, for example, if you wanted to run the `BasicWalkthrough` class against a Cyc server at 
 `localhost:3600`, you would issue the following command:
 
-    mvn exec:java -Dexec.mainClass="com.cyc.core.examples.basics.CoreAPIUsage" -Dcyc.session.server=localhost:3600
+    mvn exec:java -Dexec.mainClass="com.cyc.core.examples.basics.BasicWalkthrough" -Dcyc.session.server=localhost:3600
 
 ### Logging
 

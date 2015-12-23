@@ -23,20 +23,17 @@ package com.cyc.core.examples.advanced;
  * #L%
  */
 
-import com.cyc.base.CycConnectionException;
-import com.cyc.base.cycobject.CycObject;
 import com.cyc.baseclient.nl.ParaphraserFactory;
 import com.cyc.baseclient.nl.ParaphraserFactory.ParaphrasableType;
-import com.cyc.kb.config.KBAPIConfiguration;
 import com.cyc.km.modeling.task.CycBasedTask;
 import com.cyc.query.Query;
-import com.cyc.kb.KBObject;
-import com.cyc.kb.exception.KBApiException;
+import com.cyc.kb.KbObject;
+import com.cyc.kb.exception.KbException;
 import com.cyc.km.query.construction.QuerySearch;
 import com.cyc.nl.Paraphraser;
 import com.cyc.nl.Span;
 import com.cyc.session.CycSessionManager;
-import com.cyc.session.SessionManager;
+import com.cyc.session.spi.SessionManager;
 import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 
 import java.util.Collection;
@@ -66,7 +63,7 @@ public class QuerySearching {
         System.exit(0);
 //      }
 */           
-      KBAPIConfiguration.setShouldTranscriptOperations(false);
+      CycSessionManager.getCurrentSession().getOptions().setShouldTranscriptOperations(false);
       QuerySearch querySearch = getQuerySearch();
       getAndDisplayTerms(querySearch);
       getAndDisplayQueries(querySearch);
@@ -87,7 +84,7 @@ public class QuerySearching {
    */
   public static CycBasedTask getATask() throws OpenCycUnsupportedFeatureException {
     // First, get all known tasks:
-    final Set<CycBasedTask> allTasks = new HashSet<CycBasedTask>();
+    final Set<CycBasedTask> allTasks = new HashSet<>();
     try {
       allTasks.addAll(CycBasedTask.getAll());
       System.out.println("Got " + allTasks.size() + " tasks.");
@@ -116,7 +113,7 @@ public class QuerySearching {
    * @param querySearch
    * @throws Exception
    */
-  public static void getAndDisplayQueries(final QuerySearch querySearch) throws CycConnectionException, KBApiException {
+  public static void getAndDisplayQueries(final QuerySearch querySearch) throws KbException {
     final Collection<Query> queries = querySearch.getQueries();
     System.out.println("========================\nFound " + queries.size()
             + " queries:\n========================");
@@ -138,12 +135,12 @@ public class QuerySearching {
    * @param querySearch
    * @throws Exception
    */
-  public static void getAndDisplayTerms(final QuerySearch querySearch) throws CycConnectionException {
-    final Collection<KBObject> terms = querySearch.getTerms();
+  public static void getAndDisplayTerms(final QuerySearch querySearch) {
+    final Collection<KbObject> terms = querySearch.getTerms();
     System.out.println("========================\nFound " + terms.size()
             + " terms:\n========================");
     Paraphraser termParaphraser = getTermParaphraser();
-    for (final KBObject term : terms) {
+    for (final KbObject term : terms) {
       System.out.println(showLocations(querySearch.getSearchString(),
               querySearch.getTermLocations(term)));
       System.out.println("CycL: " + term.toString());
@@ -209,7 +206,7 @@ public class QuerySearching {
    * @return the paraphraser
    */
   public static Paraphraser getTermParaphraser() {
-    final Paraphraser<CycObject> cycObjectParaphraser = ParaphraserFactory.getInstance(ParaphrasableType.KBOBJECT);
+    final Paraphraser<KbObject> cycObjectParaphraser = ParaphraserFactory.getInstance(ParaphrasableType.KBOBJECT);
     // Set the force appropriately for terms:
     //cycObjectParaphraser.setForce(NLForce.None);
     /** Wrap our CycObject paraphraser in an KBObject paraphraser that will delegate

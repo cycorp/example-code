@@ -21,15 +21,15 @@ package com.cyc.core.examples.advanced;
  * #L%
  */
 
-import com.cyc.base.CycConnectionException;
+import com.cyc.base.exception.CycConnectionException;
 import com.cyc.base.justification.Justification;
 import com.cyc.baseclient.justification.JustificationWalker;
 import com.cyc.km.query.answer.justification.ProofViewJustification;
 import com.cyc.query.Query;
 import com.cyc.query.QueryFactory;
 import com.cyc.session.CycSessionManager;
-import com.cyc.session.SessionCommunicationException;
-import com.cyc.session.SessionManager;
+import com.cyc.session.exception.SessionCommunicationException;
+import com.cyc.session.spi.SessionManager;
 import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 import java.io.IOException;
 import net.htmlparser.jericho.Source;
@@ -70,7 +70,7 @@ public class QueryAnswerJustifying {
   }
 
   public static void displayAnswerJustification(final Query query)
-          throws IOException, OpenCycUnsupportedFeatureException, CycConnectionException, SessionCommunicationException {
+          throws IOException, OpenCycUnsupportedFeatureException, SessionCommunicationException, CycConnectionException {
     /* Get the justification for a particular answer.  In this case, we get the very first answer
     that came back. */
     final Justification justification = new ProofViewJustification(query.getAnswer(0));

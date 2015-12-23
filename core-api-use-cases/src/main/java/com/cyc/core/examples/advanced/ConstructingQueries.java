@@ -21,23 +21,21 @@ package com.cyc.core.examples.advanced;
  * #L%
  */
 
-import com.cyc.base.CycConnectionException;
 import com.cyc.kb.ArgPosition;
-import com.cyc.kb.KBCollection;
+import com.cyc.kb.KbCollection;
+import com.cyc.kb.KbCollectionFactory;
 import com.cyc.kb.Sentence;
-import com.cyc.kb.client.KBCollectionImpl;
-import com.cyc.kb.config.KBAPIConfiguration;
 import com.cyc.kb.exception.CreateException;
-import com.cyc.kb.exception.KBApiException;
-import com.cyc.kb.exception.KBTypeException;
+import com.cyc.kb.exception.KbException;
+import com.cyc.kb.exception.KbTypeException;
 import com.cyc.km.modeling.task.CycBasedTask;
 import com.cyc.km.query.construction.QuerySearch;
 import com.cyc.nl.Paraphraser;
 import com.cyc.query.Query;
 import com.cyc.query.exception.QueryConstructionException;
 import com.cyc.session.CycSessionManager;
-import com.cyc.session.SessionCommunicationException;
-import com.cyc.session.SessionManager;
+import com.cyc.session.exception.SessionCommunicationException;
+import com.cyc.session.spi.SessionManager;
 import com.cyc.session.exception.OpenCycUnsupportedFeatureException;
 import java.io.IOException;
 import java.util.HashSet;
@@ -53,12 +51,12 @@ public class ConstructingQueries {
     "sells natural gas", "The ticker symbol for", "is a publicly held corporation",
     "(isa ?X PubliclyHeldCorporation)", "(sellsProductType ?X NaturalGas)", "(stockTickerSymbol ?X ?Y)"};
   private static final int expectedFragmentCount = 3;
-  static KBCollection termToReplace;
+  static KbCollection termToReplace;
   //@todo get rid of need to use CycObjects for replacing stuff.
 
-  public static void main(String[] args) throws KBTypeException, CreateException {
+  public static void main(String[] args) throws KbTypeException, CreateException {
     final String exampleName = ConstructingQueries.class.getSimpleName();
-    termToReplace = KBCollectionImpl.get("NaturalGas");
+    termToReplace = KbCollectionFactory.get("NaturalGas");
     try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
       System.out.println("Running " +  exampleName + "...");
       /*
@@ -68,7 +66,7 @@ public class ConstructingQueries {
         System.exit(0);
 //      }
               */
-      KBAPIConfiguration.setShouldTranscriptOperations(false);
+      CycSessionManager.getCurrentSession().getOptions().setShouldTranscriptOperations(false);
       querySearch = QuerySearching.getQuerySearch();
       final Set<Query> fragments = getFragments();
       final Query combinedQuery = combineFragments(fragments);
@@ -82,8 +80,8 @@ public class ConstructingQueries {
     }
   }
 
-  public static Set<Query> getFragments() throws JAXBException, CycConnectionException {
-    final Set<Query> fragments = new HashSet<Query>();
+  public static Set<Query> getFragments() throws JAXBException {
+    final Set<Query> fragments = new HashSet<>();
     for (final Query query : querySearch.getQueries()) {
       final String queryString = queryParaphraser.paraphrase(query).getString();
       for (final String fragmentString : fragmentStrings) {
@@ -116,7 +114,7 @@ public class ConstructingQueries {
   }
 
   public static void getAndDisplayCandidateReplacements(final Query query,
-          final Object term) throws KBApiException, IOException, OpenCycUnsupportedFeatureException {
+          final Object term) throws KbException, IOException, OpenCycUnsupportedFeatureException {
     final Sentence querySentence = query.getQuerySentence();
     final ArgPosition argPosition = querySentence.getArgPositionsForTerm(term).iterator().next();
     final CycBasedTask task = querySearch.getTask();

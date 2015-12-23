@@ -20,13 +20,13 @@ package com.cyc.core.examples.advanced;
  * limitations under the License.
  * #L%
  */
-import com.cyc.baseclient.export.ExportException;
-import com.cyc.kb.KBCollection;
-import com.cyc.kb.KBObject;
+import com.cyc.baseclient.exception.ExportException;
+import com.cyc.kb.KbCollection;
+import com.cyc.kb.KbObject;
+import com.cyc.kb.KbCollectionFactory;
 import com.cyc.kb.Variable;
-import com.cyc.kb.client.KBCollectionImpl;
-import com.cyc.kb.exception.KBApiException;
-import com.cyc.km.query.export.CSVResultsExporter;
+import com.cyc.kb.exception.KbException;
+import com.cyc.km.query.export.CsvResultsExporter;
 import com.cyc.query.InferenceStatus;
 import com.cyc.query.InferenceSuspendReason;
 import com.cyc.query.Query;
@@ -35,7 +35,7 @@ import com.cyc.query.QueryFactory;
 import com.cyc.query.QueryListener;
 import com.cyc.query.exception.QueryConstructionException;
 import com.cyc.session.CycSessionManager;
-import com.cyc.session.SessionManager;
+import com.cyc.session.spi.SessionManager;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -75,17 +75,17 @@ public class AdvancedQuerying {
    *
    */
   public static void demonstrateTermSubstitution() {
-    final Map<KBObject, Object> substitutions = new HashMap<KBObject, Object>();
-    final KBCollectionImpl theSpecies;
+    final Map<KbObject, Object> substitutions = new HashMap<>();
+    final KbCollection theSpecies;
     try {
-      theSpecies = KBCollectionImpl.findOrCreate("(TheFn BiologicalSpecies)");
+      theSpecies = KbCollectionFactory.findOrCreate("(TheFn BiologicalSpecies)");
     } catch (Exception ex) {
       throw new RuntimeException("Problem finding or creating indexical.", ex);
     }
     final List<String> sampleSpecies = Arrays.asList("PlainsZebra", "Ostrich", "HumpbackWhale");
     for (final String species : sampleSpecies) {
       try {
-        final KBCollection kbSpecies = KBCollectionImpl.get(species);
+        final KbCollection kbSpecies = KbCollectionFactory.get(species);
         if (!kbSpecies.isInstanceOf("BiologicalSpecies")) {
           throw new RuntimeException(kbSpecies + " is not known to be a species.");
         } else {
@@ -107,7 +107,7 @@ public class AdvancedQuerying {
     final Collection<Variable> queryVars;
     try {
       queryVars = query.getQueryVariables();
-    } catch (KBApiException ex) {
+    } catch (KbException ex) {
       throw new RuntimeException("Couldn't get query variables.", ex);
     }
     System.out.format("%-16s", "Variables:");
@@ -141,7 +141,7 @@ public class AdvancedQuerying {
     System.out.println("Exporting " + query);
     System.out.println("Query answers exported to CSV format:");
     try {
-      new CSVResultsExporter(System.out).export(query);
+      new CsvResultsExporter(System.out).export(query);
     } catch (ExportException ex) {
       System.err.println("Exception exporting query answers:");
       ex.printStackTrace(System.err);
@@ -165,7 +165,7 @@ public class AdvancedQuerying {
       throw new RuntimeException("Exception constructing query.", ex);
     }
     query.setMaxTime(30);
-    query.setMaxNumber(500);
+    query.setMaxAnswerCount(500);
     query.retainInference();
     // Add a listener that will handle important inference events:
     query.addListener(new QueryListener() {
@@ -184,8 +184,7 @@ public class AdvancedQuerying {
 
       @Override
       public void notifyInferenceAnswersAvailable(Query query, List<QueryAnswer> newAnswers) {
-        int answerCount = 0;
-        answerCount = query.getAnswerCount();
+        int answerCount = query.getAnswerCount();
         System.out.println("New answers! Query now has " + answerCount + " answers.");
         try {//Do stuff with an answer:
           final QueryAnswer answer = newAnswers.get(newAnswers.size() - 1);
@@ -193,7 +192,7 @@ public class AdvancedQuerying {
           for (final Variable var : query.getQueryVariables()) {
             System.out.println(var + " -> " + answer.getBinding(var));
           }
-        } catch (KBApiException ex) {
+        } catch (KbException ex) {
 
         }
         if (answerCount >= 1000) {

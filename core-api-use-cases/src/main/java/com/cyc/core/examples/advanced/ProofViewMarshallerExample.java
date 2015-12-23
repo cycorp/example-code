@@ -22,13 +22,14 @@ package com.cyc.core.examples.advanced;
  */
 
 import com.cyc.kb.Sentence;
-import com.cyc.kb.client.Constants;
-import com.cyc.kb.client.SentenceImpl;
+import com.cyc.kb.SentenceFactory;
+import com.cyc.kb.ContextFactory;
 import com.cyc.km.query.answer.justification.ProofViewJustification;
+import com.cyc.query.Query;
 import com.cyc.query.QueryAnswer;
-import com.cyc.query.QueryImpl;
+import com.cyc.query.QueryFactory;
 import com.cyc.session.CycSessionManager;
-import com.cyc.session.SessionManager;
+import com.cyc.session.spi.SessionManager;
 import com.cyc.xml.query.ProofView;
 import com.cyc.xml.query.ProofViewMarshaller;
 import java.io.IOException;
@@ -52,8 +53,8 @@ public class ProofViewMarshallerExample {
     QueryAnswer answer = null;
     try {
       // Set up the query. Here, we're just proving a fully-bound query sentence.
-      final Sentence genlsEmuBird = new SentenceImpl("(genls Emu Bird)");
-      final QueryImpl query = new QueryImpl(genlsEmuBird, Constants.inferencePSCMt());
+      final Sentence genlsEmuBird = SentenceFactory.get("(genls Emu Bird)");
+      final Query query = QueryFactory.getQuery(genlsEmuBird, ContextFactory.INFERENCE_PSC);
       
       // Make sure to keep the inference around after it has concluded. Because we're doing this, 
       // we'll need to make sure that we clean up after it in the "finally" block.

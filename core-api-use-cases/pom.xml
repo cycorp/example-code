@@ -4,13 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <artifactId>cyc-core-api-use-cases</artifactId>
   <groupId>com.cyc</groupId>
-  <version>1.0.0-rc5</version>
+  <artifactId>cyc-core-api-use-cases</artifactId>
+  <version>1.1.0</version>
   <packaging>jar</packaging>
   
-  <name>Core API Use Cases</name>
+  <name>Cyc Core API Use Cases</name>
+  
   <description>Examples of common usage of the Cyc Core API Suite.</description>
+  
+  <!-- ====|    Metadata & contact info    |=================================================== -->
+  
   <url>http://dev.cyc.com/api/samples</url>
   
   <scm>
@@ -20,7 +24,7 @@
   </scm>
   
   <issueManagement>
-    <url>https://github.com/cycorp/example-code/issues</url>
+    <url>http://dev.cyc.com/issues/</url>
     <system>GitHub Issues</system>
   </issueManagement>
   
@@ -46,13 +50,157 @@
       <organizationUrl>http://www.cyc.com</organizationUrl>
     </developer>
   </developers>
-
+  
+  <!-- ====|    Properties    |============================================================== -->
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <lib.directory>${project.basedir}/lib</lib.directory>
   </properties>
   
+  <!--
+      A NOTE ABOUT DEPENDENCIES:
+      
+      In a typical Maven project, these libraries would be installed in a local repository. 
+  -->
+  
+  <profiles>
+    <profile>
+      <!-- ====|  Standard handling of Maven dependencies  |==================================== -->
+      <id>standard</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <!-- The Cyc Core API specification -->
+          <groupId>com.cyc</groupId>
+          <artifactId>cyc-core-api</artifactId>
+          <version>1.1.0</version>
+        </dependency>
+        <dependency>
+          <!-- Reference implementation of the Cyc Core API -->
+          <groupId>com.cyc</groupId>
+          <artifactId>cyc-core-client-impl</artifactId>
+          <version>1.1.0</version>
+        </dependency>
+        <dependency>
+          <!-- 
+              Enables logging of Cyc APIs. Cyc APIs use SLF4J, which must be bound to a logging 
+              framework at deployment time. Here we use SLF4J's SimpleLogger implementation.
+
+              For more about Cyc API logging, see: http://dev.cyc.com/api/faq/api-logging.html
+          -->
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <version>1.7.12</version>
+        </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <version>1.7.12</version>
+        </dependency>
+        <dependency>
+          <!-- Used in QueryAnswerJustifying to render justification HTML as text -->
+          <groupId>net.htmlparser.jericho</groupId>
+          <artifactId>jericho-html</artifactId>
+          <version>3.3</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <!-- ====|  A standalone project, pre-bundled with all dependencies  |==================== -->
+      <id>standalone</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.cyc</groupId>
+          <artifactId>cyc-core-api</artifactId>
+          <version>1.1.0</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/cyc-core-api-1.1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>com.cyc</groupId>
+          <artifactId>cyc-core-client-impl</artifactId>
+          <version>1.1.0</version>
+          <classifier>standalone</classifier>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/cyc-core-client-impl-1.1.0-standalone.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <version>1.7.12</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/slf4j-api-1.7.12.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <version>1.7.12</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/slf4j-simple-1.7.12.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>net.htmlparser.jericho</groupId>
+          <artifactId>jericho-html</artifactId>
+          <version>3.3</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/jericho-html-3.3.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>org.atteo.classindex</groupId>
+          <artifactId>classindex</artifactId>
+          <version>classindex.version</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/classindex-3.4.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>3.4</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/commons-lang3-3.4.jar</systemPath>
+        </dependency>
+          <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>18.0</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/guava-18.0.jar</systemPath>
+        </dependency>
+          <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+          <version>2.2.6</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/jaxb-impl-2.2.6.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+          <version>2.10.0</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/xercesImpl-2.10.0.jar</systemPath>
+        </dependency>
+        <dependency>
+          <groupId>xml-apis</groupId>
+          <artifactId>xml-apis</artifactId>
+          <version>1.4.01</version>
+          <scope>system</scope>
+          <systemPath>${lib.directory}/xml-apis-1.4.01.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+  
+  <!-- ====|    Build configuration    |======================================================== -->
+
   <build>
     <pluginManagement>
       <plugins>
@@ -96,79 +244,21 @@
         </executions>
       </plugin>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.3</version>
-          <executions>
-            <execution>
-              <id>bundle-sources</id>
-              <phase>package</phase>
-              <goals>
-                <!-- produce source artifact for main project sources -->
-                <goal>jar-no-fork</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <id>bundle-sources</id>
+            <phase>package</phase>
+            <goals>
+              <!-- produce source artifact for main project sources -->
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
-  <dependencies>
-    <dependency>
-      <!-- The Cyc Core API specification -->
-      <groupId>com.cyc</groupId>
-      <artifactId>cyc-core-api</artifactId>
-      <version>1.0.0-rc5</version>
-      <!-- To use a standalone jar, uncomment the following: -->
-      <!--
-      <classifier>jar-with-dependencies</classifier>
-      -->
-    </dependency>
-    
-    <dependency>
-      <!-- The reference implementation of the cyc-core-api -->
-      <groupId>com.cyc</groupId>
-      <artifactId>cyc-core-client-impl</artifactId>
-      <version>1.0.0-rc5</version>
-      <!-- To use a standalone jar, uncomment the following: -->
-      <!--
-      <classifier>jar-with-dependencies</classifier>
-      -->
-    </dependency>
-    
-    <dependency>
-      <!-- Used in QueryAnswerJustifying to render justification HTML as text. -->
-      <groupId>net.htmlparser.jericho</groupId>
-      <artifactId>jericho-html</artifactId>
-      <version>3.3</version>
-    </dependency>
-    <!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.12</version>
-    </dependency>
-    -->
-    <!-- 
-         Enables logging of Cyc APIs. Cyc APIs use SLF4J, which must be bound
-         to a logging framework at deployment time; here we use Log4j. 
-         
-         For details about configuring Cyc API logging, see:
-         
-         * http://dev.cyc.com/api/faq/api-logging.html
-         * This project's src/main/resources/log4j.properties
-    -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.12</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
 </project>

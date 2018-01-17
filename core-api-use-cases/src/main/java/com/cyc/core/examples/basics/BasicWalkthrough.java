@@ -1,23 +1,14 @@
 package com.cyc.core.examples.basics;
 
+import com.cyc.Cyc;
 import com.cyc.kb.BinaryPredicate;
-import com.cyc.kb.BinaryPredicateFactory;
 import com.cyc.kb.Context;
-import com.cyc.kb.ContextFactory;
 import com.cyc.kb.Fact;
-import com.cyc.kb.FactFactory;
 import com.cyc.kb.KbCollection;
-import com.cyc.kb.KbCollectionFactory;
-import com.cyc.kb.KbFactory;
-import static com.cyc.kb.KbFactory.getSentence;
-import static com.cyc.kb.KbFactory.getVariable;
 import com.cyc.kb.KbIndividual;
-import com.cyc.kb.KbIndividualFactory;
 import com.cyc.kb.KbPredicate;
 import com.cyc.kb.KbTerm;
-import com.cyc.kb.KbTermFactory;
 import com.cyc.kb.Sentence;
-import com.cyc.kb.SentenceFactory;
 import com.cyc.kb.Variable;
 import com.cyc.kb.exception.CreateException;
 import com.cyc.kb.exception.DeleteException;
@@ -28,30 +19,29 @@ import com.cyc.query.InferenceStatus;
 import com.cyc.query.InferenceSuspendReason;
 import com.cyc.query.Query;
 import com.cyc.query.QueryAnswer;
-import com.cyc.query.QueryFactory;
-import static com.cyc.query.QueryFactory.getQuery;
 import com.cyc.query.QueryListener;
 import com.cyc.query.QueryResultSet;
 import com.cyc.query.exception.QueryConstructionException;
 import com.cyc.query.exception.QueryException;
 import com.cyc.session.CycServerInfo;
 import com.cyc.session.CycSession;
-import com.cyc.session.CycSessionManager;
+import com.cyc.session.SessionManager;
 import com.cyc.session.SessionOptions;
 import com.cyc.session.exception.SessionCommandException;
 import com.cyc.session.exception.SessionCommunicationException;
 import com.cyc.session.exception.SessionConfigurationException;
 import com.cyc.session.exception.SessionException;
 import com.cyc.session.exception.SessionInitializationException;
-import com.cyc.session.spi.SessionManager;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * #%L
  * File: BasicWalkthrough.java
- * Project: Core API Use Cases
+ * Project: Cyc Core API Use Cases
  * %%
  * Copyright (C) 1995 - 2014 Cycorp, Inc
  * %%
@@ -74,13 +64,13 @@ import java.util.List;
  * This class provides a simple example of working with the Cyc KB through the Cyc Core API. It 
  * includes new term creation, term retrieval, asserting and deleting facts about terms, and 
  * querying the Cyc KB. 
- * 
- * <p>The purpose of this class is to illustrate the basics of the Cyc Core API, so it is structured
- * to be read in linear order, from top to bottom, with methods that build upon the examples in
+ * <p>
+ * The purpose of this class is to illustrate the basics of the Cyc Core API, so it is structured to
+ * be read in linear order, from top to bottom, with methods that build upon the examples in
  * previous methods. Thus, while this file demonstrates best practices for Core API usage, it does 
  * not represent the ideal structure for an actual application class.
- * 
- * <p>All of the example code in this class should work with all Cyc server releases supported by 
+ * <p>
+ * All of the example code in this class should work with all Cyc server releases supported by 
  * the Cyc Core API.
  * 
  * @note There are multiple ways of interacting with Cyc (through and independent of the Core API).
@@ -88,6 +78,11 @@ import java.util.List;
  */
 public class BasicWalkthrough {
 
+  // Cyc APIs log through the SLF4J API:
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(BasicWalkthrough.class);
+  
+  
   // Fields
   
   private Context peopleDataMt;
@@ -102,19 +97,17 @@ public class BasicWalkthrough {
   
   
   // Main
-  
+
   public static void main(String[] args) {
     /*
-     Wrapping the current SessionManager instance in a try-with-resources statement (Java 7 and 
-     later) in the main method ensures that ALL CycSessions created by the SessionManager are 
-     closed, along with all of their Cyc server connections, before the program ends:
+     Wrapping the current SessionManager instance in a try-with-resources statement in the main 
+     method ensures that ALL CycSessions created by the SessionManager are closed, along with all of
+     their Cyc server connections, before the program ends:
      */
-    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
-      
+    try (SessionManager sessionMgr = SessionManager.getInstance()) {
       System.out.println("Running walkthrough...");
       BasicWalkthrough usage = new BasicWalkthrough();
       usage.runExample();
-      
       System.out.println();
     } catch (KbException | QueryException | SessionException | RuntimeException kbe) {
       kbe.printStackTrace(System.err);
@@ -124,13 +117,6 @@ public class BasicWalkthrough {
       ioe.printStackTrace(System.err);
       System.exit(1);
     } finally {
-      /*
-       If we were running under Java 6, we could manually close the current SessionManager here 
-       within the finally block, like so:
-      
-       CycSessionManager.getInstance().close();
-       */
-      
       System.out.println("... Walkthrough concluded.");
       System.exit(0);
     }
@@ -141,35 +127,25 @@ public class BasicWalkthrough {
   
   /**
    * Calls the actual example methods in linear order.
+   * <p>
+   * Note that we call all of the example methods within a try-with-resources block, to ensure that
+   * the CycSession for the current thread is closed before the thread is terminated. This may seem
+   * a little redundant, as this is a single-threaded application and we're already closing the
+   * SessionManager in the main() method (thereby closing ALL CycSessions). Although this isn't
+   * strictly necessary for simple applications like this one, it is good practice for multi-
+   * threaded applications (e.g., servlets), so we're demonstrating it here.
+   * <p>
+   * Typically, we don't need to directly request the current CycSession; if one does not exist, it
+   * will be automatically created the first time that the Cyc APIs require it. However, wrapping it
+   * in a try-with-resources statement ensures that the session will be cleaned up at the end of the
+   * current execution thread.
    * 
-   * @throws SessionConfigurationException
-   * @throws SessionCommunicationException
-   * @throws SessionInitializationException
-   * @throws SessionCommandException
-   * @throws KbTypeException
-   * @throws CreateException
-   * @throws DeleteException
-   * @throws QueryConstructionException
    * @throws KbException 
+   * @throws QueryConstructionException
+   * @throws SessionException
    */
-  public void runExample() 
-          throws SessionConfigurationException, SessionCommunicationException, 
-          SessionInitializationException, SessionCommandException, KbTypeException, CreateException,
-          DeleteException, QueryConstructionException, KbException {
-    /* 
-     Note that we call all of the example methods within a try-with-resources block, to ensure that
-     the CycSession for the current thread is closed before the thread is terminated. This may seem
-     a little redundant, as this is a single-threaded application and we're already closing the 
-     SessionManager in the main() method (thereby closing ALL CycSessions). Although this isn't 
-     strictly necessary for simple applications like this one, it is good practice for multi-
-     threaded applications (e.g., servlets), so we're demonstrating it here.
-    
-     Typically, we don't need to directly request the current CycSession; if one does not exist, it 
-     will be automatically created the first time that the Cyc APIs require it. However, wrapping it
-     in a try-with-resources statement (Java 7 and later) ensures that the session will be cleaned 
-     up at the end of the current execution thread.
-     */
-    try (CycSession session = CycSessionManager.getCurrentSession()) {
+  public void runExample() throws KbException, QueryConstructionException, SessionException {
+    try (CycSession session = CycSession.getCurrent()) {
       
       configureCurrentSession();
       
@@ -189,13 +165,6 @@ public class BasicWalkthrough {
       
       runQueryAsynchronously();
       
-    } finally {
-      /*
-       If we were running under Java 6, we could have manually closed the current CycSession here 
-       within the finally block, like so:
-      
-       CycSessionManager.getCurrentSession().close();
-       */
     }
   }
   
@@ -223,13 +192,13 @@ public class BasicWalkthrough {
      already exist, because we already called CycSessionManager#getCurrentSession() in the
      runExample() method. Calling it again here should return the same instance of CycSession.
      */
-    CycSession session = CycSessionManager.getCurrentSession();
+    CycSession session = CycSession.getCurrent();
     
     /*
      Let's get some information about the Cyc server being used for this session:
      */
     CycServerInfo serverInfo = session.getServerInfo();
-    System.out.println("Current Cyc server: " + serverInfo.getCycServer());
+    System.out.println("Current Cyc server: " + serverInfo.getCycAddress());
     System.out.println("Cyc server release type: " + serverInfo.getSystemReleaseType());
     System.out.println("Cyc server revision number:" + serverInfo.getCycRevisionString());
     
@@ -276,15 +245,15 @@ public class BasicWalkthrough {
      KbObjects are requested from factories, and there is KB factory for each KbObject type.
      Here, we retrieve Context objects.
     */
-    peopleDataMt = ContextFactory.get("PeopleDataMt");
-    massMediaDataMt = ContextFactory.get("MassMediaDataMt");
+    peopleDataMt = Context.get("PeopleDataMt");
+    massMediaDataMt = Context.get("MassMediaDataMt");
     
     /* 
      Instead of manually specifying a Context for every query or assertion, many methods will check
      for default assertion and query Contexts if no Context argument is directly provided.
      */
-    CycSessionManager.getCurrentSession().getOptions().setDefaultContext(
-            ContextFactory.getDefaultContext(massMediaDataMt, ContextFactory.INFERENCE_PSC));
+    CycSession.getCurrent().getOptions().setDefaultContext(
+            Context.getDefaultContext(massMediaDataMt, Cyc.Constants.INFERENCE_PSC));
   }
   
   /**
@@ -306,7 +275,7 @@ public class BasicWalkthrough {
      KbObjects are requested from factories, and there is KB factory for each KbObject type.
      Here, we find or create an Individual term in the KB to represent the actor Jack Nicholson.
     */
-    KbIndividual nicholsonIndividual = KbIndividualFactory.findOrCreate("JackNicholson");
+    KbIndividual nicholsonIndividual = KbIndividual.findOrCreate("JackNicholson");
     System.out.println("Jack Nicholson as an individual: "
             + nicholsonIndividual);
     
@@ -318,8 +287,8 @@ public class BasicWalkthrough {
      test before every call to get. 
      */
     KbTerm nicholsonTerm = null;
-    if (KbTermFactory.existsAsType("JackNicholson")) {
-      nicholsonTerm = KbTermFactory.get("JackNicholson");
+    if (KbTerm.existsAsType("JackNicholson")) {
+      nicholsonTerm = KbTerm.get("JackNicholson");
     }
     System.out.println("Jack Nicholson as a term: " + nicholsonTerm);
     
@@ -327,7 +296,7 @@ public class BasicWalkthrough {
      We can also confirm that Jack Nicholson isn't, say, a KbCollection.
      */
     System.out.println("Is Jack Nicholson a collection? "
-            + KbCollectionFactory.existsAsType("JackNicholson"));
+            + KbCollection.existsAsType("JackNicholson"));
     
     /*
      The KbObject factories are intelligent enough to return an instance of the most specific type.
@@ -343,13 +312,13 @@ public class BasicWalkthrough {
      slightly different syntax for checking whether it can be expressed as a KbIndividual:
     */
     System.out.println("Does Cyc already know that _King of Marvin Gardens_ is an individual? "
-            + KbIndividualFactory.existsAsType("TheKingOfMarvinGardens-TheMovie"));
+            + KbIndividual.existsAsType("TheKingOfMarvinGardens-TheMovie"));
     
     /*
      And here's a way to check whether the term exists at all:
      */
     System.out.println("Does _King of Marvin Gardens_ exist in Cyc's KB at all? "
-            + KbFactory.existsInKb("TheKingOfMarvinGardens-TheMovie"));
+            + Cyc.existsInKb("TheKingOfMarvinGardens-TheMovie"));
     
     /*
      For sake of the example, let's ensure that _King of Marvin Gardens_ does NOT exist in Cyc's KB.
@@ -359,7 +328,7 @@ public class BasicWalkthrough {
      isn't:
      */
     try {
-      KbTermFactory.get("TheKingOfMarvinGardens-TheMovie").delete();
+      KbTerm.get("TheKingOfMarvinGardens-TheMovie").delete();
       System.out.println("TheKingOfMarvinGardens-TheMovie: deleted!");
     } catch (KbObjectNotFoundException e) {
       System.out.println("Apparently TheKingOfMarvinGardens-TheMovie wasn't in the KB,"
@@ -386,18 +355,18 @@ public class BasicWalkthrough {
      collection DramaticMovie exists in the KB. If DramaticMovie were not in the KB, this code would
      throw an exception, and we would have to create it.
     */
-    KbCollection dramaticMovie = KbCollectionFactory.get("DramaticMovie");
-    kingOfMarvinGardens = KbIndividualFactory
+    KbCollection dramaticMovie = KbCollection.get("DramaticMovie");
+    kingOfMarvinGardens = KbIndividual
             .findOrCreate("TheKingOfMarvinGardens-TheMovie", dramaticMovie, massMediaDataMt);
     System.out.println("We've created _King of Marvin Gardens_: " + kingOfMarvinGardens);
     
     /* 
      Now, let's add the fact that the movie "The King of Marvin Gardens" has a restricted rating. 
     */
-    restrictedRating = KbCollectionFactory.get("RestrictedRating");
-    movieAdvisoryRating = BinaryPredicateFactory.get("movieAdvisoryRating");
-    Fact kingOfMarvinGardensRestrictedRating = FactFactory.findOrCreate(
-            getSentence(movieAdvisoryRating, kingOfMarvinGardens, restrictedRating),
+    restrictedRating = KbCollection.get("RestrictedRating");
+    movieAdvisoryRating = BinaryPredicate.get("movieAdvisoryRating");
+    Fact kingOfMarvinGardensRestrictedRating = Fact.findOrCreate(
+            Sentence.get(movieAdvisoryRating, kingOfMarvinGardens, restrictedRating),
             massMediaDataMt);
     System.out.println("_King of Marvin Gardens_ is R-rated: " 
             + kingOfMarvinGardensRestrictedRating);
@@ -421,21 +390,21 @@ public class BasicWalkthrough {
      running them in a Cyc that already has the terms won't do anything bad.  When in doubt, the
      following idiom is most useful. 
      */
-    actorInMovies = KbCollectionFactory.findOrCreate("ActorInMovies");
+    actorInMovies = KbCollection.findOrCreate("ActorInMovies");
 
     /*
      Let's also convey the fact that all movie actors are people. (Our apologies to the highly 
      trained animals who have sometimes carried movies on their shoulders). We assume the collection
      Person already exists and we only have to specify the name to retrieve it.
      */
-    actorInMovies.addGeneralization("Person");
+    actorInMovies.addGeneralization(KbCollection.get("Person"));
     
     /* 
      We need a way to relate actors to the movies they are in. Let's call the relation
      "movieActors". This particular predicate already exists in Cyc, but if it didn't, this is how
      you would create it. 
      */
-    movieActors = BinaryPredicateFactory.findOrCreate("movieActors");
+    movieActors = BinaryPredicate.findOrCreate("movieActors");
     System.out.println("Binary predicate associating actors with movies: " + movieActors);
     
     /* 
@@ -447,8 +416,8 @@ public class BasicWalkthrough {
      */
     System.out.println("Asserting constraints on #$movieActors,"
             + " these might take a little while to propagate...");
-    movieActors.addArgIsa(1, "Movie-CW", "MassMediaDataMt");
-    movieActors.addArgIsa(2, "ActorInMovies", "MassMediaDataMt");
+    movieActors.addArgIsa(1, KbCollection.get("Movie-CW"), Context.get("MassMediaDataMt"));
+    movieActors.addArgIsa(2, KbCollection.get("ActorInMovies"), Context.get("MassMediaDataMt"));
     
     /* 
      Of course, some movie actors have a starring role. To add this more specific knowledge to the 
@@ -458,23 +427,22 @@ public class BasicWalkthrough {
      */
     System.out.println("Asserting constraints on #$movieActors-WithStarringRole,"
             + " these might take a little while to propagate...");
-    movieActorsWithStarringRole = BinaryPredicateFactory.findOrCreate("movieActors-WithStarringRole");
-    movieActorsWithStarringRole.addArgIsa(1, "Movie-CW", "MassMediaDataMt");
-    movieActorsWithStarringRole.addArgIsa(2, "ActorInMovies", "MassMediaDataMt");
+    movieActorsWithStarringRole = BinaryPredicate.findOrCreate("movieActors-WithStarringRole");
+    movieActorsWithStarringRole.addArgIsa(1, KbCollection.get("Movie-CW"), Context.get("MassMediaDataMt"));
+    movieActorsWithStarringRole.addArgIsa(2, KbCollection.get("ActorInMovies"), Context.get("MassMediaDataMt"));
     
     /*
      Finally, let's establish that movieActors is a generalization of 
      movieActorsWithStarringRole 
      */
-    movieActorsWithStarringRole.addGeneralization("movieActors", "UniversalVocabularyMt");
+    movieActorsWithStarringRole.addGeneralization(KbPredicate.get("movieActors"), Context.get("UniversalVocabularyMt"));
     
     /*
      Now, let's view all of the specializations on #$movieActors.
     */
     System.out.println("Specializations of #$movieActors:");
-    for (KbPredicate spec : movieActors.getSpecializations()) {
-      System.out.println("  - " + spec);
-    }
+    movieActors.getSpecializations()
+            .forEach(spec -> System.out.println("  - " + spec));
   }
   
   /**
@@ -497,7 +465,7 @@ public class BasicWalkthrough {
      We ensured earlier that #$JackNicholson was in the KB. We'll be referring to him a few times 
      more, though, so let's assign him to an instance field.
     */
-    nicholson = KbIndividualFactory.get("JackNicholson");
+    nicholson = KbIndividual.get("JackNicholson");
     
     /*
      Let's convey the fact Jack Nicholson is an instance of the ActorInMovies collection in the 
@@ -508,38 +476,37 @@ public class BasicWalkthrough {
     /* 
      We can easily see what JackNicholson is known to be an instance of from the PeopleDataMt context. 
      */
-    Collection<KbCollection> nicholsonTypes = nicholson.instanceOf("PeopleDataMt");
+    Collection<KbCollection> nicholsonTypes = nicholson.instanceOf(Context.get("PeopleDataMt"));
     System.out.println("Things that #$JackNicholson is known to be:");
-    for (KbCollection nicholsonType : nicholsonTypes) {
-      System.out.println("  - " + nicholsonType);
-    }
+    nicholsonTypes
+            .forEach(nicholsonType -> System.out.println("  - " + nicholsonType));
     
     /* 
      Since JackNicholson is an instance of ActorInMovies (which is a specialization of Person) we 
      should be able to prove that JackNicholson is a person without ever having asserted it.
      */
-    assert (nicholsonTypes.contains(KbCollectionFactory.get("Person"))) :
+    assert (nicholsonTypes.contains(KbCollection.get("Person"))) :
             "Jack Nicholson may be an ActorInMovies but he is not a Person";
     
     /*
      Similarly, Cyc knows that he is a human.
     */
     System.out.println("Does Cyc know that #$JackNicholson is a human? "
-            + nicholson.isInstanceOf("HomoSapiens"));
+            + nicholson.isInstanceOf(KbCollection.get("HomoSapiens")));
     
     /* 
      Now, assert the fact, in the MassMediaMt context, that JackNicholson was one of the actors in 
      KingOfMarvinGardens.
      */
-    Fact nicholsonActedInMarvinGardens = FactFactory.findOrCreate(
-            getSentence(movieActors, kingOfMarvinGardens, nicholson), massMediaDataMt);
+    Fact nicholsonActedInMarvinGardens = Fact.findOrCreate(
+            Sentence.get(movieActors, kingOfMarvinGardens, nicholson), massMediaDataMt);
     
     /* 
      But wait! Jack Nicholson actually had a starring role in TheKingOfMarvinGardens-TheMovie, so
      let's add that more specific assertion. This method shows how to do it with a String containing
      a CycL sentence. 
      */
-    Fact nicholsonStarredInMarvinGardens = FactFactory.findOrCreate(
+    Fact nicholsonStarredInMarvinGardens = Fact.findOrCreate(
             "(movieActors-WithStarringRole TheKingOfMarvinGardens-TheMovie JackNicholson)",
             "MassMediaDataMt");
     System.out.println("Jack Nicholson starred in _King of Marvin Gardens_: " 
@@ -571,10 +538,10 @@ public class BasicWalkthrough {
           SessionCommunicationException, KbException {
     System.out.println();
     
-    Variable movieVar = KbFactory.getVariable("?MOVIE");
-    Sentence querySentence = SentenceFactory.and(
-            getSentence(movieActors, movieVar, nicholson),
-            getSentence(movieAdvisoryRating, movieVar, restrictedRating));
+    Variable movieVar = Variable.get("?MOVIE");
+    Sentence querySentence = Sentence.and(
+            Sentence.get(movieActors, movieVar, nicholson),
+            Sentence.get(movieAdvisoryRating, movieVar, restrictedRating));
     System.out.println("Query sentence: " + querySentence);
     
      /* 
@@ -586,7 +553,7 @@ public class BasicWalkthrough {
      Note that we are wrapping the Query in a try-with-resources statement; this ensures that it 
      will be cleaned up when we are done with it, without having to manually call Query#close().
     */
-    try (Query query = getQuery(querySentence, ContextFactory.INFERENCE_PSC)) {
+    try (Query query = Query.get(querySentence, Cyc.Constants.INFERENCE_PSC)) {
       
       /*
        Let's set a few parameters for efficiency using our knowledge of answer expectations. In 
@@ -596,7 +563,7 @@ public class BasicWalkthrough {
        */
       query.setMaxAnswerCount(10)
               .setMaxTime(2)
-              .setBrowsable(true);
+              .getInferenceParameters().setBrowsable(true);
       
       /*
        Calling Query#getAnswers() will force an inference to run, if this has not already happened.
@@ -609,13 +576,13 @@ public class BasicWalkthrough {
               + InferenceStatus.SUSPENDED.equals(query.getStatus()));
       System.out.println("Number of results: " + answers.size());
       
-      for (QueryAnswer answer : answers) {
+      answers.forEach(answer -> {
         /*
          If we know the type of the binding, we can use that as a generic.
          */
         KbIndividual binding = answer.<KbIndividual>getBinding(movieVar);
         System.out.println(" - " + binding);
-      }
+      });
     } finally {
       /*
        We've wrapped the Query in a try-with-resources statement, so it will be automatically closed 
@@ -658,11 +625,12 @@ public class BasicWalkthrough {
      toString method on KBObjects yields a string that can be used in this kind
      of method.
      */
-    try (Query query = QueryFactory.getQuery(
+    try (Query query = Query.get(
             "(and (movieActors ?MOVIE " + nicholson + ")" +
             "     (movieAdvisoryRating ?MOVIE RestrictedRating))",
             "InferencePSC")) {
-      query.setMaxAnswerCount(10)
+      query.getInferenceParameters()
+              .setMaxAnswerCount(10)
               .setMaxTime(2)
               .setBrowsable(true);
       
@@ -697,10 +665,10 @@ public class BasicWalkthrough {
           throws KbTypeException, CreateException, QueryConstructionException {
     System.out.println();
     
-    final Variable movieVar = getVariable("?MOVIE");
-    Sentence querySentence = SentenceFactory.and(
-            getSentence(movieActors, movieVar, nicholson),
-            getSentence(movieAdvisoryRating, movieVar, restrictedRating));
+    final Variable movieVar = Variable.get("?MOVIE");
+    Sentence querySentence = Sentence.and(
+            Sentence.get(movieActors, movieVar, nicholson),
+            Sentence.get(movieAdvisoryRating, movieVar, restrictedRating));
     Query query = null;
     
     /*
@@ -708,8 +676,9 @@ public class BasicWalkthrough {
      below.
      */
     try {
-      query = getQuery(querySentence, ContextFactory.INFERENCE_PSC);
-      query.setMaxAnswerCount(10)
+      query = Query.get(querySentence, Cyc.Constants.INFERENCE_PSC);
+      query.getInferenceParameters()
+              .setMaxAnswerCount(10)
               .setMaxTime(2)
               .setBrowsable(true);
       query.addListener(new QueryListener() {
@@ -718,14 +687,16 @@ public class BasicWalkthrough {
           System.out.println("... Created inference for " + query);
         }
         @Override
-        public void notifyInferenceStatusChanged(InferenceStatus oldStatus, InferenceStatus newStatus, InferenceSuspendReason suspendReason, Query query) {
+        public void notifyInferenceStatusChanged(InferenceStatus oldStatus, 
+                                                 InferenceStatus newStatus, 
+                                                 InferenceSuspendReason suspendReason,
+                                                 Query query) {
           System.out.println("... Inference status changed from " + oldStatus + " to " + newStatus);
         }
         @Override
         public void notifyInferenceAnswersAvailable(Query query, List<QueryAnswer> newAnswers) {
-          for (QueryAnswer answer : newAnswers) {
-            System.out.println("New answer: " + answer.<KbIndividual>getBinding(movieVar));
-          }
+          newAnswers.forEach(answer
+                  -> System.out.println("New answer: " + answer.<KbIndividual>getBinding(movieVar)));
         }
         @Override
         public void notifyInferenceTerminated(Query query, Exception exception) {

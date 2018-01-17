@@ -3,7 +3,7 @@ package com.cyc.core.examples.advanced;
 /*
  * #%L
  * File: AdvancedQuerying.java
- * Project: Core API Use Cases
+ * Project: Cyc Core API Use Cases
  * %%
  * Copyright (C) 1995 - 2014 Cycorp, Inc
  * %%
@@ -20,45 +20,45 @@ package com.cyc.core.examples.advanced;
  * limitations under the License.
  * #L%
  */
-import com.cyc.baseclient.exception.ExportException;
 import com.cyc.kb.KbCollection;
 import com.cyc.kb.KbObject;
-import com.cyc.kb.KbCollectionFactory;
+import com.cyc.kb.Sentence;
 import com.cyc.kb.Variable;
+import com.cyc.kb.exception.CreateException;
 import com.cyc.kb.exception.KbException;
-import com.cyc.km.query.export.CsvResultsExporter;
+import com.cyc.kb.exception.KbTypeException;
 import com.cyc.query.InferenceStatus;
 import com.cyc.query.InferenceSuspendReason;
 import com.cyc.query.Query;
 import com.cyc.query.QueryAnswer;
-import com.cyc.query.QueryFactory;
+import com.cyc.query.QueryAnswers;
 import com.cyc.query.QueryListener;
 import com.cyc.query.exception.QueryConstructionException;
-import com.cyc.session.CycSessionManager;
-import com.cyc.session.spi.SessionManager;
+import com.cyc.query.exception.QueryRuntimeException;
+import com.cyc.session.SessionManager;
+import com.cyc.session.exception.SessionCommunicationException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.cyc.Cyc.Constants.INFERENCE_PSC;
+
 public class AdvancedQuerying {
 
   public static void main(String[] args) {
     final String exampleName = AdvancedQuerying.class.getSimpleName();
-    try (SessionManager sessionMgr = CycSessionManager.getInstance()) {
+    try (SessionManager sessionMgr = SessionManager.getInstance()) {
       System.out.println("Running " + exampleName + "...");
-
       demonstrateIncrementalResultsQuery();
-
-      Query q = QueryFactory.getQuery("(and (genls HomoSapiens ?TYPE) (scientificName ?TYPE ?NAME))", "InferencePSC");
-      if (q.getAnswerCount() > 25) {
-        System.out.print("First 25 ");
+      try (Query q = Query.get("(and (genls HomoSapiens ?TYPE) (scientificName ?TYPE ?NAME))", "InferencePSC")) {
+        if (q.getAnswerCount() > 25) {
+          System.out.print("First 25 ");
+        }
+        System.out.println("Combined query answers:\n ");
+        displayQueryBindings(q, 25);
       }
-      System.out.println("Combined query answers:\n ");
-      displayQueryBindings(q, 25);
-      exportQueryBindings(q);
-      q.close();
       demonstrateTermSubstitution();
     } catch (Exception ex) {
       System.out.println("Problem building or running demo query.");
@@ -72,37 +72,41 @@ public class AdvancedQuerying {
 
   /**
    * Demonstrate how terms can be substituted in a Query before it is run.
-   *
    */
   public static void demonstrateTermSubstitution() {
     final Map<KbObject, Object> substitutions = new HashMap<>();
     final KbCollection theSpecies;
     try {
-      theSpecies = KbCollectionFactory.findOrCreate("(TheFn BiologicalSpecies)");
-    } catch (Exception ex) {
+      theSpecies = KbCollection.findOrCreate("(TheFn BiologicalSpecies)");
+    } catch (CreateException | KbTypeException ex) {
       throw new RuntimeException("Problem finding or creating indexical.", ex);
     }
     final List<String> sampleSpecies = Arrays.asList("PlainsZebra", "Ostrich", "HumpbackWhale");
     for (final String species : sampleSpecies) {
       try {
-        final KbCollection kbSpecies = KbCollectionFactory.get(species);
-        if (!kbSpecies.isInstanceOf("BiologicalSpecies")) {
+        final KbCollection kbSpecies = KbCollection.get(species);
+        if (!kbSpecies.isInstanceOf(KbCollection.get("BiologicalSpecies"))) {
           throw new RuntimeException(kbSpecies + " is not known to be a species.");
         } else {
-          final Query indexicalQuery = QueryFactory.getQuery("(and (genls (TheFn BiologicalSpecies) ?TYPE) (scientificName ?TYPE ?NAME))", "InferencePSC");
-          substitutions.put(theSpecies, kbSpecies);
-          indexicalQuery.substituteTerms(substitutions);
-          System.out.println("\nResults for " + species + ": ");
-          displayQueryBindings(indexicalQuery, 5);
-          indexicalQuery.close();
+          final Sentence querySentence = Sentence.get("(and (genls (TheFn BiologicalSpecies) ?TYPE) (scientificName ?TYPE ?NAME))");
+          try (Query indexicalQuery = querySentence.toQuery(INFERENCE_PSC)) {
+            substitutions.put(theSpecies, kbSpecies);
+            indexicalQuery.setSubstitutions(substitutions);
+            System.out.println("\nResults for " + species + ": ");
+            displayQueryBindings(indexicalQuery, 5);
+          } catch (QueryConstructionException ex) {
+            throw new RuntimeException(ex);
+          }
         }
-      } catch (Exception ex) {
+      } catch (CreateException | KbTypeException | RuntimeException ex) {
         System.out.println("Trouble testing " + species + ": " + ex.getLocalizedMessage());
       }
     }
   }
 
-  /* A simple method to traverse and display the bindings for a query.  */
+  /**
+   * A simple method to traverse and display the bindings for a query.
+   */
   public static void displayQueryBindings(final Query query, final Integer maxToDisplay) {
     final Collection<Variable> queryVars;
     try {
@@ -111,24 +115,21 @@ public class AdvancedQuerying {
       throw new RuntimeException("Couldn't get query variables.", ex);
     }
     System.out.format("%-16s", "Variables:");
-    for (final Variable var : queryVars) {
-      System.out.format("%-24s", var);
-    }
+    queryVars
+            .forEach(var -> System.out.format("%-24s", var));
     System.out.println();
     int i = 0;
-    final List<QueryAnswer> answers;
+    final QueryAnswers<?> answers;
     try {
       answers = query.getAnswers();
-    } catch (Exception ex) {
+    } catch (SessionCommunicationException ex) {
       throw new RuntimeException("Couldn't get query answers.", ex);
     }
     for (final QueryAnswer answer : answers) {
       final Map<Variable, Object> bindings = answer.getBindings();
       System.out.format("%-16s", "Answer " + i + ":");
-      for (final Variable var : queryVars) {
-        final Object value = bindings.get(var);
-        System.out.format("%-24s", value);
-      }
+      queryVars
+              .forEach(var -> System.out.format("%-24s", bindings.get(var)));
       System.out.println();
       if (++i >= maxToDisplay) {
         break;
@@ -136,29 +137,18 @@ public class AdvancedQuerying {
     }
   }
 
-  /* Using an Exporter to serialize the answers for a query to CSV format.  */
-  public static void exportQueryBindings(final Query query) {
-    System.out.println("Exporting " + query);
-    System.out.println("Query answers exported to CSV format:");
-    try {
-      new CsvResultsExporter(System.out).export(query);
-    } catch (ExportException ex) {
-      System.err.println("Exception exporting query answers:");
-      ex.printStackTrace(System.err);
-    }
-  }
-
-  /* Sometimes you don't expect all the answers to a query to be returned quickly, and you want to be able to do something with them
-   as they come in.  Who knows, you might even have some other reason for handling the asynchronously.
-   This example shows how to attach a listeners to a query for all the major query events.  Typically
-   the most interesting ones are changes in the inference status (i.e. whether it's running, suspended, etc.)
-   and arrival of new answers.
+  /**
+   * Sometimes you don't expect all the answers to a query to be returned quickly, and you want to
+   * be able to do something with them as they come in. Who knows, you might even have some other
+   * reason for handling the asynchronously. This example shows how to attach a listeners to a query
+   * for all the major query events. Typically the most interesting ones are changes in the
+   * inference status (i.e. whether it's running, suspended, etc.) and arrival of new answers.
    */
   private static void demonstrateIncrementalResultsQuery() {
     // A query that should get lots of results, not all at once:
     final Query query;
     try {
-      query = QueryFactory.getQuery("(#$and \n"
+      query = Query.get("(#$and \n"
               + "(#$integerBetween 1 ?N 10000) \n"
               + "(#$isa ?N #$PrimeNumber))");
     } catch (QueryConstructionException ex) {
@@ -175,7 +165,10 @@ public class AdvancedQuerying {
       }
 
       @Override
-      public void notifyInferenceStatusChanged(InferenceStatus oldStatus, InferenceStatus newStatus, InferenceSuspendReason suspendReason, Query query) {
+      public void notifyInferenceStatusChanged(InferenceStatus oldStatus,
+                                               InferenceStatus newStatus, 
+                                               InferenceSuspendReason suspendReason,
+                                               Query query) {
         System.out.println("Inference status changed from " + oldStatus + " to " + newStatus);
         if (InferenceStatus.SUSPENDED.equals(newStatus)) {
           System.out.println("Suspend reason: " + suspendReason);
@@ -206,11 +199,10 @@ public class AdvancedQuerying {
         System.out.println("Query terminated.");
       }
     });
-    
     try {
       // Start the inference. This won't return until the inference terminates:
       query.performInference();
-    } catch (Exception ex) {
+    } catch (QueryRuntimeException ex) {
       throw new RuntimeException("Exception performing inference.", ex);
     }
     query.close();

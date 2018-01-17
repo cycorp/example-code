@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="cyc-core-api-use-cases" default="build-and-run" basedir=".">
+  
+  <!-- Build properties -->
+
+  <property name="cyc.api.version"     value="1.1.1"/>
+  <property name="lib"                 value="lib"/>
+  <property name="src"                 value="src/main/java"/>
+  <property name="resources"           value="src/main/resources"/>
+  <property name="build"               value="target"/>
+  <property name="build.classes"       value="${build}/classes"/>
+  <property name="project.jar.path"    value="${build}/${ant.project.name}-${cyc.api.version}.jar"/>
+  
+  <!-- Runtime properties, can be overridden at command line -->
+  
+  <property name="exampleClass"        value="com.cyc.core.examples.basics.BasicWalkthrough"/>
+  <property name="cyc.session.server"  value="localhost:3600"/>
+  
+  <!-- Classpath -->
+  
+  <path id="lib.classpath">
+    <pathelement path="${lib}/cyc-core-api-${cyc.api.version}.jar"/>
+    <pathelement path="${lib}/cyc-core-client-impl-${cyc.api.version}-standalone.jar"/>
+    <fileset dir="${lib}">
+      <exclude name="cyc-*.jar"/>
+    </fileset>
+  </path>
+  
+  <!-- Build targets -->
+  
+  <target name="clean">
+    <delete dir="${build}"/>
+  </target>
+  
+  <target name="init">
+    <mkdir dir="${build.classes}"/>
+  </target>
+  
+  <target name="compile" depends="init" description="Compile the source and build the project">
+    <javac srcdir="${src}" destdir="${build.classes}" includeantruntime="false">
+      <classpath refid="lib.classpath"/>
+    </javac>
+    <copy todir="${build.classes}">
+      <fileset dir="${resources}" includes="**/*.properties"/>
+    </copy>
+  </target>
+  
+  <target name="package" depends="compile" description="Build a jar file">
+    <jar destfile="${project.jar.path}" basedir="${build.classes}"/>
+  </target>
+  
+  <!-- Run targets -->
+  
+  <target name="print-classpath">
+    <property name="myclasspath" refid="lib.classpath"/>
+    <echo message="Classpath: ${myclasspath}"/>
+  </target>
+  
+  <target name="run" depends="init">
+    <echo>
+      ${line.separator}
+      ${line.separator}
+      Running ${exampleClass} against Cyc server at ${cyc.session.server}...
+      ${line.separator}
+      ${line.separator}
+    </echo>
+    <java classname="${exampleClass}" fork="true">
+      <classpath path="${project.jar.path}"/>
+      <classpath refid="lib.classpath"/>
+      <sysproperty key="cyc.session.server" value="${cyc.session.server}"/>
+    </java>
+  </target>
+  
+  <target name="build-and-run" depends="clean, compile, package, run"/>
+  
+</project>

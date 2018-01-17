@@ -6,7 +6,7 @@
   
   <groupId>com.cyc</groupId>
   <artifactId>cyc-core-api-use-cases</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <packaging>jar</packaging>
   
   <name>Cyc Core API Use Cases</name>
@@ -78,13 +78,13 @@
           <!-- The Cyc Core API specification -->
           <groupId>com.cyc</groupId>
           <artifactId>cyc-core-api</artifactId>
-          <version>1.1.0</version>
+          <version>1.1.1</version>
         </dependency>
         <dependency>
           <!-- Reference implementation of the Cyc Core API -->
           <groupId>com.cyc</groupId>
           <artifactId>cyc-core-client-impl</artifactId>
-          <version>1.1.0</version>
+          <version>1.1.1</version>
         </dependency>
         <dependency>
           <!-- 
@@ -120,17 +120,17 @@
         <dependency>
           <groupId>com.cyc</groupId>
           <artifactId>cyc-core-api</artifactId>
-          <version>1.1.0</version>
+          <version>1.1.1</version>
           <scope>system</scope>
-          <systemPath>${lib.directory}/cyc-core-api-1.1.0.jar</systemPath>
+          <systemPath>${lib.directory}/cyc-core-api-1.1.1.jar</systemPath>
         </dependency>
         <dependency>
           <groupId>com.cyc</groupId>
           <artifactId>cyc-core-client-impl</artifactId>
-          <version>1.1.0</version>
+          <version>1.1.1</version>
           <classifier>standalone</classifier>
           <scope>system</scope>
-          <systemPath>${lib.directory}/cyc-core-client-impl-1.1.0-standalone.jar</systemPath>
+          <systemPath>${lib.directory}/cyc-core-client-impl-1.1.1-standalone.jar</systemPath>
         </dependency>
         <dependency>
           <groupId>org.slf4j</groupId>

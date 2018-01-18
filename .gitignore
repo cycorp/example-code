@@ -1,8 +1,11 @@
-# Ignore everything
-*
+# Ignore everything...
+/*
+/*/
 
-# Except for these files...
-!core-api-use-cases/
+# ... Except for these files:
 !LICENSE
 !*.md
+
+# ... And these directories:
+!/core-api-use-cases/
 

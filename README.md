@@ -3,7 +3,7 @@ Cyc API Examples
 
 This repository provides examples of common usage of the Cyc APIs. 
 
-It currently contains the [Core API Use Cases](./cyc-core-use-cases) project.
+It currently contains the [Core API Use Cases](./core-api-use-cases) project.
 
 
 Contact

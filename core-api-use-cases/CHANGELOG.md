@@ -4,11 +4,27 @@ Core API Use Cases CHANGELOG
 For more information, visit the [Cyc Developer Center](http://dev.cyc.com/).
 
 
-1.0.0 - 2017-1213
------------------
+1.1.1 - 2018-01-15
+------------------
+
+Project can now be built and run in Apache Ant as well as Apache Maven.
+
+Examples updated to work against
+[Cyc Core API v1.1.1](https://github.com/cycorp/api-suite/releases/tag/core-api-spec-1.1.1).
+
+
+1.1.0 - 2017-12-21
+------------------
+
+Examples updated to work against
+[Cyc Core API v1.1.0](https://github.com/cycorp/api-suite/releases/tag/core-api-spec-1.1.0).
+
+
+1.0.0 - 2017-12-13
+------------------
 
 Examples updated to work against 
-[Cyc Core API Suite 1.0.0](https://github.com/cycorp/api-suite/releases/tag/core-api-suite-1.0.0).
+[Cyc Core API v1.0.0](https://github.com/cycorp/api-suite/releases/tag/core-api-spec-1.0.0).
 
 Note that 1.0.0 is _not backwards-compatible_ with earlier releases. However, future 1.x releases 
 will be backwards-compatible with 1.0.0, per the [Semantic Versioning 2.0.0](https://semver.org/)

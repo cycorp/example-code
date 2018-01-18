@@ -1,8 +1,8 @@
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-logs/
-*~
+# Ignore everything
+*
+
+# Except for these files...
+core-api-use-cases/
+LICENSE
+*.md
+

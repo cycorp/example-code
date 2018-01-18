@@ -2,7 +2,7 @@
 *
 
 # Except for these files...
-core-api-use-cases/
-LICENSE
-*.md
+!core-api-use-cases/
+!LICENSE
+!*.md
 
